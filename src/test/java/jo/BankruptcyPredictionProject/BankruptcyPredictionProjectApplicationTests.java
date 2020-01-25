@@ -3,7 +3,7 @@ package jo.BankruptcyPredictionProject;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import jo.BankruptcyPredictionProject.Domain.ArffRepo;
+import jo.BankruptcyPredictionProject.Domain.Repositories.*;
 
 @SpringBootTest
 class BankruptcyPredictionProjectApplicationTests {
@@ -16,7 +16,13 @@ class BankruptcyPredictionProjectApplicationTests {
 	void givenFilePathWhenReadingDataThenCheckStatus(){
 		ArffRepo arffRepo = ArffRepo.getInstance();
 		arffRepo.setFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\3year.arff");
-		arffRepo.readData(Boolean.TRUE);
+		arffRepo.loadData(Boolean.TRUE);
+	}
+
+	@Test
+	void readingFormulasTest(){
+		FormulaRepo formulaRepo = FormulaRepo.getInstance();
+		formulaRepo.loadData();
 	}
 
 }

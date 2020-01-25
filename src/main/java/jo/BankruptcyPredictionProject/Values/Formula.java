@@ -27,7 +27,7 @@ public class Formula {
             sb.append(element.toString()).append('\n');
         }
 
-        return sb.toString();
+        return sb.toString().trim();
     }
 
     public String toExtString(){
@@ -36,6 +36,6 @@ public class Formula {
             sb.append(element.toExtString()).append('\n');
         }
 
-        return sb.toString();
+        return sb.toString().trim();
     }
 }

@@ -1,10 +1,8 @@
-package jo.BankruptcyPredictionProject.Domain;
+package jo.BankruptcyPredictionProject.Domain.Repositories;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
-
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader.ArffReader;
@@ -15,8 +13,7 @@ public class ArffRepo {
     private String filePath;
     private Instances data;
 
-    private ArffRepo() {
-    }
+    private ArffRepo() {}
 
     public static ArffRepo getInstance() {
         if (instance == null) {
@@ -26,7 +23,7 @@ public class ArffRepo {
         return instance;
     }
 
-    public void readData(Boolean isTest) {
+    public void loadData(Boolean isTest) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(new File(this.filePath)));
             ArffReader arff;
@@ -42,8 +39,8 @@ public class ArffRepo {
                 this.data.add(inst);
             }
 
-        } catch (IOException e) {
-            System.out.println("Reading from arff file failed!");
+        } catch (Exception e) {
+            System.out.println("Reading from arff file: " + this.filePath + " failed!");
             e.printStackTrace();
         }
 
