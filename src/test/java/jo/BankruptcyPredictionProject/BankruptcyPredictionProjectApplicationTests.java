@@ -25,4 +25,10 @@ class BankruptcyPredictionProjectApplicationTests {
 		formulaRepo.loadData();
 	}
 
+	@Test
+	void readingScopesTest(){
+		AttributeScopeRepo scopeRepo = AttributeScopeRepo.getInstance();
+		scopeRepo.loadData();
+	}
+
 }
