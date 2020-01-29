@@ -24,7 +24,7 @@ public class Formula {
     public String toString(){
         StringBuilder sb = new StringBuilder();
         for (FormulaElement element : elements){
-            sb.append(element.toString()).append('\n');
+            sb.append(element.toString()).append(" 0").append('\n');
         }
 
         return sb.toString().trim();
@@ -37,5 +37,18 @@ public class Formula {
         }
 
         return sb.toString().trim();
+    }
+
+    @Override
+    public boolean equals(Object obj){
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+
+        Formula f = (Formula) obj;
+        return this.toExtString().equals(f.toExtString());
     }
 }

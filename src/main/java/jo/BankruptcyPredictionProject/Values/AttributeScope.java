@@ -12,10 +12,10 @@ public class AttributeScope {
     }
 
     public Boolean isApplicable(Double value){
-        if (rangeFrom != null && value < rangeFrom){
+        if (this.rangeFrom != null && value < this.rangeFrom){
             return Boolean.FALSE;
         }
-        if (rangeTo != null && value > rangeTo){
+        if (this.rangeTo != null && value > this.rangeTo){
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
@@ -47,6 +47,12 @@ public class AttributeScope {
 
     @Override
     public String toString(){
-        return getAttrName() + "Between" + getRangeFrom() + "And" + getRangeTo();
+        if (this.rangeFrom != null && this.rangeTo == null){
+            return getAttrName() + "HigherThan" + getRangeFrom();
+        } else if (this.rangeFrom == null && this.rangeTo != null){
+            return getAttrName() + "LowerThan" + getRangeTo();
+        } else {
+            return getAttrName() + "Between" + getRangeFrom() + "And" + getRangeTo();
+        }
     }
 }

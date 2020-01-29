@@ -3,21 +3,21 @@ package jo.BankruptcyPredictionProject.Values;
 import jo.BankruptcyPredictionProject.Values.Interface.FormulaElement;
 
 public class Literal implements FormulaElement {
-    private Integer symbol;
+    private int symbol;
     private String description;
-    private Boolean isNegative;
+    private boolean isNegative;
 
-    public Literal(Integer symbol, String description, Boolean isNegative) {
+    public Literal(int symbol, String description, boolean isNegative) {
         this.symbol = symbol;
         this.description = description;
         this.isNegative = isNegative;
     }
 
-    public Integer getSymbol() {
+    public int getSymbol() {
         return symbol;
     }
 
-    public void setSymbol(Integer symbol) {
+    public void setSymbol(int symbol) {
         this.symbol = symbol;
     }
 
@@ -29,17 +29,21 @@ public class Literal implements FormulaElement {
         this.description = description;
     }
 
-    public Boolean getIsNegative(){
+    public boolean getIsNegative(){
         return isNegative;
     }
 
-    public void setIsNegative(Boolean isNegative) {
+    public void setIsNegative(boolean isNegative) {
         this.isNegative = isNegative;
     }
 
     @Override
     public String toString() {
-        return this.symbol.toString();
+        if (!isNegative){
+            return Integer.toString(this.symbol);
+        } else {
+            return "-" + this.symbol;
+        }
     }
 
     @Override

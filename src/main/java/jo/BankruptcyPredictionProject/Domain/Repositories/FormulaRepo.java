@@ -7,7 +7,14 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import jo.BankruptcyPredictionProject.Values.Clause;
+import jo.BankruptcyPredictionProject.Values.Formula;
+import jo.BankruptcyPredictionProject.Values.Literal;
+import jo.BankruptcyPredictionProject.Values.Interface.FormulaElement;
 
 public class FormulaRepo {
     private static FormulaRepo instance;
@@ -15,12 +22,17 @@ public class FormulaRepo {
     private final String satFilePath = "./src/main/resources/satFormulas.txt";
     private final String unsatFilePath = "./src/main/resources/unsatFormulas.txt";
 
-    private List<List<String>> satFormulas;
-    private List<List<String>> unsatFormulas;
+    private List<Formula> satFormulas;
+    private List<Formula> unsatFormulas;
+    private Map<String, Integer> variables;
+
+    private int currentSymbol;
 
     private FormulaRepo() {
         this.satFormulas = new ArrayList<>();
         this.unsatFormulas = new ArrayList<>();
+        this.variables = new HashMap<>();
+        currentSymbol = 1;
     }
 
     public static FormulaRepo getInstance() {
@@ -36,18 +48,20 @@ public class FormulaRepo {
         readFormulasFile(this.unsatFilePath);
     }
 
-    public void writeNewFormula(String newFormula, boolean isSat) {
+    public void writeNewFormula(Formula newFormula, boolean isSat) {
         String filePath;
 
         if (isSat) {
             filePath = this.satFilePath;
+            this.satFormulas.add(newFormula);
         } else {
             filePath = this.unsatFilePath;
+            this.unsatFormulas.add(newFormula);
         }
 
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(filePath, true));
-            bw.append("\n").append(newFormula).append("\n").append("---");
+            bw.append("\n").append(newFormula.toExtString()).append("\n").append("---");
             bw.flush();
             bw.close();
         } catch (FileNotFoundException e) {
@@ -61,10 +75,9 @@ public class FormulaRepo {
         System.out.println("Written new formula to file: " + filePath);
     }
 
-    public boolean formulaExists(String formula, boolean isSat) {
-        for (List<String> existingFormula : getFormulas(isSat)) {
-            String existingFormulaString = String.join("\n", existingFormula);
-            if (formula.equals(existingFormulaString)) {
+    public boolean formulaExists(Formula formula, boolean isSat) {
+        for (Formula existingFormula : getFormulas(isSat)) {
+            if (formula.equals(existingFormula)) {
                 return true;
             }
         }
@@ -72,12 +85,33 @@ public class FormulaRepo {
         return false;
     }
 
-    public List<List<String>> getFormulas(boolean isSat) {
+    public List<Formula> getFormulas(boolean isSat) {
         if (isSat) {
             return this.satFormulas;
         } else {
             return this.unsatFormulas;
         }
+    }
+
+    public Integer getLiteralSymbolIfExists(String literalDescription){
+        if (this.variables.containsKey(literalDescription)){
+            return this.variables.get(literalDescription);
+        }
+
+        return null;
+    }
+
+    public boolean addNewVariable(String description, Integer symbol){
+        if (!this.variables.containsKey(description)){
+            this.variables.put(description, symbol);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public int getCurrentSymbol(){
+        return this.currentSymbol;
     }
 
     private void readFormulasFile(String formulasFilePath) {
@@ -86,7 +120,7 @@ public class FormulaRepo {
         try (BufferedReader br = new BufferedReader(new FileReader(formulasFilePath))) {
             String line = "";
             boolean assignToNewFormula = true;
-            List<String> currentFormula = new ArrayList<String>();
+            Formula currentFormula = new Formula();
 
             while (line != null) {
                 line = br.readLine();
@@ -104,11 +138,11 @@ public class FormulaRepo {
                         loadedFormulas++;
                     } else {
                         if (assignToNewFormula) {
-                            currentFormula.clear();
+                            currentFormula = new Formula();
                             assignToNewFormula = false;
                         }
 
-                        currentFormula.add(prepareString(line));
+                        currentFormula.attach(processLine(prepareString(line)));
                     }
                 }
             }
@@ -121,6 +155,53 @@ public class FormulaRepo {
         }
 
         System.out.println("Done reading from file: " + formulasFilePath + ". Loaded formulas: " + loadedFormulas);
+    }
+
+    private FormulaElement processLine(String line){
+        String[] lineSplit = line.split(" ");
+        FormulaElement element;
+
+        if (lineSplit.length == 1){
+            element = createLiteralFromString(lineSplit[0]);
+        } else {
+            Clause clause = new Clause();
+
+            for (int i = 0; i < lineSplit.length - 1; i++){
+                Literal literal = createLiteralFromString(lineSplit[i]);
+                clause.attach(literal);
+            }
+
+            element = clause;
+        }
+
+        return element;
+    }
+
+    private Literal createLiteralFromString(String literalString){
+        boolean additionResult;
+
+        int symbol;
+        String description;
+        boolean isNegative;
+
+        if (literalString.charAt(0) == '~'){
+            description = literalString.substring(1);
+            isNegative = true;
+        } else {
+            description = literalString;
+            isNegative = false;
+        }
+
+        additionResult = addNewVariable(description, this.currentSymbol);
+
+        if (additionResult){
+            symbol = currentSymbol;
+            this.currentSymbol++;
+        } else {
+            symbol = getLiteralSymbolIfExists(description);
+        }
+
+        return new Literal(symbol, description, isNegative);
     }
 
     private String prepareString(String s) {
