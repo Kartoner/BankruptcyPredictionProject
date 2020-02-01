@@ -17,7 +17,7 @@ public class ArffRepo {
 
     public static ArffRepo getInstance() {
         if (instance == null) {
-            return new ArffRepo();
+            instance =  new ArffRepo();
         }
 
         return instance;

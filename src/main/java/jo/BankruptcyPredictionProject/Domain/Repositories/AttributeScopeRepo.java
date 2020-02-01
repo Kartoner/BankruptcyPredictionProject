@@ -24,7 +24,7 @@ public class AttributeScopeRepo {
 
     public static AttributeScopeRepo getInstance(){
         if (instance == null){
-            return new AttributeScopeRepo();
+            instance = new AttributeScopeRepo();
         }
 
         return instance;
@@ -99,5 +99,9 @@ public class AttributeScopeRepo {
         }
 
         return null;
+    }
+
+    public boolean isScopeForAttribute(String attrName){
+        return this.scopes.containsKey(attrName);
     }
 }

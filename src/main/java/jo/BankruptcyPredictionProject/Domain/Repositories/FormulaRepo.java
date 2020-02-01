@@ -37,7 +37,7 @@ public class FormulaRepo {
 
     public static FormulaRepo getInstance() {
         if (instance == null) {
-            return new FormulaRepo();
+            instance = new FormulaRepo();
         }
 
         return instance;
@@ -114,6 +114,10 @@ public class FormulaRepo {
         return this.currentSymbol;
     }
 
+    public void incrementCurrentSymbol(){
+        this.currentSymbol++;
+    }
+
     private void readFormulasFile(String formulasFilePath) {
         int loadedFormulas = 0;
 
@@ -166,7 +170,7 @@ public class FormulaRepo {
         } else {
             Clause clause = new Clause();
 
-            for (int i = 0; i < lineSplit.length - 1; i++){
+            for (int i = 0; i < lineSplit.length; i++){
                 Literal literal = createLiteralFromString(lineSplit[i]);
                 clause.attach(literal);
             }
@@ -178,7 +182,7 @@ public class FormulaRepo {
     }
 
     private Literal createLiteralFromString(String literalString){
-        boolean additionResult;
+        boolean additionSuccessful;
 
         int symbol;
         String description;
@@ -192,11 +196,11 @@ public class FormulaRepo {
             isNegative = false;
         }
 
-        additionResult = addNewVariable(description, this.currentSymbol);
+        additionSuccessful = addNewVariable(description, this.currentSymbol);
 
-        if (additionResult){
+        if (additionSuccessful){
             symbol = currentSymbol;
-            this.currentSymbol++;
+            incrementCurrentSymbol();
         } else {
             symbol = getLiteralSymbolIfExists(description);
         }
