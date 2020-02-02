@@ -88,6 +88,9 @@ public class AttributeScopeRepo {
     }
 
     public AttributeScope getApplicableScope(String attrName, Double value){
+        if (value == null){
+            return null;
+        }
         if (this.scopes.containsKey(attrName)){
             List<AttributeScope> scopesList = this.scopes.get(attrName);
 

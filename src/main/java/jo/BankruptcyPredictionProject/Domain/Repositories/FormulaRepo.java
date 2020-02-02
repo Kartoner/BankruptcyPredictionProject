@@ -44,11 +44,18 @@ public class FormulaRepo {
     }
 
     public void loadData() {
+        clear();
         readFormulasFile(this.satFilePath);
         readFormulasFile(this.unsatFilePath);
     }
 
-    public void writeNewFormula(Formula newFormula, boolean isSat) {
+    private void clear(){
+        this.satFormulas.clear();
+        this.unsatFormulas.clear();
+        this.variables.clear();
+    }
+
+    public boolean writeNewFormula(Formula newFormula, boolean isSat) {
         String filePath;
 
         if (isSat) {
@@ -61,18 +68,21 @@ public class FormulaRepo {
 
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(filePath, true));
-            bw.append("\n").append(newFormula.toExtString()).append("\n").append("---");
+            bw.append(newFormula.toExtString()).append("\n").append("---").append("\n");
             bw.flush();
             bw.close();
         } catch (FileNotFoundException e) {
             System.out.println("File: " + filePath + " not found!");
             e.printStackTrace();
+            return false;
         } catch (IOException e) {
             System.out.println("Writing to file: " + filePath + " failed!");
             e.printStackTrace();
+            return false;
         }
 
         System.out.println("Written new formula to file: " + filePath);
+        return true;
     }
 
     public boolean formulaExists(Formula formula, boolean isSat) {

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import jo.BankruptcyPredictionProject.Configuration.SATConfig;
+import jo.BankruptcyPredictionProject.Domain.Parsers.ArffParser;
 import jo.BankruptcyPredictionProject.Domain.Repositories.*;
 
 @SpringBootTest
@@ -39,4 +40,15 @@ class BankruptcyPredictionProjectApplicationTests {
 		SATConfig satConfig = SATConfig.getInstance();
 		System.out.println(satConfig);
 	}
+
+	/*@Test
+	void readTestData(){
+		ArffRepo arffRepo = ArffRepo.getInstance();
+		arffRepo.setFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\sample.arff");
+		arffRepo.loadData(Boolean.TRUE);
+		FormulaRepo formulaRepo = FormulaRepo.getInstance();
+		formulaRepo.loadData();
+		ArffParser arffParser = ArffParser.getInstance();
+		arffParser.processAllRecords(Boolean.TRUE);
+	} */
 }
