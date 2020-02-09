@@ -6,11 +6,13 @@ public class Literal implements FormulaElement {
     private int symbol;
     private String description;
     private boolean isNegative;
+    private AttributeScope scope;
 
-    public Literal(int symbol, String description, boolean isNegative) {
+    public Literal(int symbol, String description, boolean isNegative, AttributeScope scope) {
         this.symbol = symbol;
         this.description = description;
         this.isNegative = isNegative;
+        this.scope = scope;
     }
 
     public int getSymbol() {
@@ -35,6 +37,14 @@ public class Literal implements FormulaElement {
 
     public void setIsNegative(boolean isNegative) {
         this.isNegative = isNegative;
+    }
+
+    public AttributeScope getScope(){
+        return scope;
+    }
+
+    public void setScope(AttributeScope scope){
+        this.scope = scope;
     }
 
     @Override

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jo.BankruptcyPredictionProject.Values.AttributeScope;
 import jo.BankruptcyPredictionProject.Values.Clause;
 import jo.BankruptcyPredictionProject.Values.Formula;
 import jo.BankruptcyPredictionProject.Values.Literal;
@@ -215,7 +216,9 @@ public class FormulaRepo {
             symbol = getLiteralSymbolIfExists(description);
         }
 
-        return new Literal(symbol, description, isNegative);
+        AttributeScope scope = AttributeScopeRepo.getInstance().getScopeByDescription(description);
+
+        return new Literal(symbol, description, isNegative, scope);
     }
 
     private String prepareString(String s) {

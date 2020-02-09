@@ -1,27 +1,26 @@
 package jo.BankruptcyPredictionProject.Values;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-
+import java.util.Map;
 import jo.BankruptcyPredictionProject.Values.Interface.FormulaElement;
 
 public class Formula {
     private List<FormulaElement> elements;
 
-    private Set<Literal> uniqueVariables;
+    private Map<String, Integer> uniqueVariables;
     
     public Formula(){
         this.elements = new ArrayList<>();
-        this.uniqueVariables = new HashSet<>();
+        this.uniqueVariables = new HashMap<>();
     }
     
     public List<FormulaElement> getElements(){
         return this.elements;
     }
 
-    public Set<Literal> getUniqueVariables(){
+    public Map<String, Integer> getUniqueVariables(){
         return this.uniqueVariables;
     }
     
@@ -42,8 +41,8 @@ public class Formula {
     }
 
     private void addIfUniqueVariable(Literal literal){
-        if (!this.uniqueVariables.contains(literal)){
-            this.uniqueVariables.add(literal);
+        if (!this.uniqueVariables.containsKey(literal.getDescription())){
+            this.uniqueVariables.put(literal.getDescription(), literal.getSymbol());
         }
     }
 
@@ -64,7 +63,7 @@ public class Formula {
     }
 
     private void removeUniqueVariable(Literal literal){
-        this.uniqueVariables.remove(literal);
+        this.uniqueVariables.remove(literal.getDescription());
     }
 
     public int getFormulaSize(){

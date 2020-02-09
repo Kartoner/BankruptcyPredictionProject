@@ -61,12 +61,12 @@ public class ArffParser{
                 }
 
                 if (existingVariableSymbol != null){
-                    newLiteral = new Literal(existingVariableSymbol, description, false);
+                    newLiteral = new Literal(existingVariableSymbol, description, false, scope);
                 } else {
                     boolean additionSuccessful = this.formulaRepo.addNewVariable(description, this.formulaRepo.getCurrentSymbol());
 
                     if (additionSuccessful){
-                        newLiteral = new Literal(this.formulaRepo.getCurrentSymbol(), description, false);
+                        newLiteral = new Literal(this.formulaRepo.getCurrentSymbol(), description, false, scope);
                         this.formulaRepo.incrementCurrentSymbol();
                     }
                 }

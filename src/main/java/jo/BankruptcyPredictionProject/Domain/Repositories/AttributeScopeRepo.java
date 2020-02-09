@@ -107,4 +107,16 @@ public class AttributeScopeRepo {
     public boolean isScopeForAttribute(String attrName){
         return this.scopes.containsKey(attrName);
     }
+
+    public AttributeScope getScopeByDescription(String description){
+        for (Map.Entry<String, List<AttributeScope>> entry : this.scopes.entrySet()){
+            for (AttributeScope scope : entry.getValue()){
+                if (scope.toString().equals(description)){
+                    return scope;
+                }
+            }
+        }
+
+        return null;
+    }
 }
