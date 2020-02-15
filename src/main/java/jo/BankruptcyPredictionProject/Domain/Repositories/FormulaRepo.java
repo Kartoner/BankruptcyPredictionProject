@@ -22,9 +22,11 @@ public class FormulaRepo {
 
     private final String satFilePath = "./src/main/resources/satFormulas.txt";
     private final String unsatFilePath = "./src/main/resources/unsatFormulas.txt";
+    private final String assessmentFilePath = "./src/main/resources/assessmentFormulas.txt";
 
     private List<Formula> satFormulas;
     private List<Formula> unsatFormulas;
+    private List<Formula> assessmentFormulas;
     private Map<String, Integer> variables;
 
     private int currentSymbol;
@@ -32,6 +34,7 @@ public class FormulaRepo {
     private FormulaRepo() {
         this.satFormulas = new ArrayList<>();
         this.unsatFormulas = new ArrayList<>();
+        this.assessmentFormulas = new ArrayList<>();
         this.variables = new HashMap<>();
         currentSymbol = 1;
     }
@@ -48,23 +51,30 @@ public class FormulaRepo {
         clear();
         readFormulasFile(this.satFilePath);
         readFormulasFile(this.unsatFilePath);
+        readFormulasFile(this.assessmentFilePath);
     }
 
     private void clear(){
         this.satFormulas.clear();
         this.unsatFormulas.clear();
+        this.assessmentFormulas.clear();
         this.variables.clear();
     }
 
-    public boolean writeNewFormula(Formula newFormula, boolean isSat) {
+    public boolean writeNewFormula(Formula newFormula, Boolean isSat) {
         String filePath;
 
-        if (isSat) {
-            filePath = this.satFilePath;
-            this.satFormulas.add(newFormula);
+        if (isSat == null){
+            filePath = this.assessmentFilePath;
+            this.assessmentFormulas.add(newFormula);
         } else {
-            filePath = this.unsatFilePath;
-            this.unsatFormulas.add(newFormula);
+            if (isSat) {
+                filePath = this.satFilePath;
+                this.satFormulas.add(newFormula);
+            } else {
+                filePath = this.unsatFilePath;
+                this.unsatFormulas.add(newFormula);
+            }
         }
 
         try {
@@ -86,7 +96,7 @@ public class FormulaRepo {
         return true;
     }
 
-    public boolean formulaExists(Formula formula, boolean isSat) {
+    public boolean formulaExists(Formula formula, Boolean isSat) {
         for (Formula existingFormula : getFormulas(isSat)) {
             if (formula.equals(existingFormula)) {
                 return true;
@@ -96,11 +106,15 @@ public class FormulaRepo {
         return false;
     }
 
-    public List<Formula> getFormulas(boolean isSat) {
-        if (isSat) {
-            return this.satFormulas;
+    public List<Formula> getFormulas(Boolean isSat) {
+        if (isSat == null){
+            return this.assessmentFormulas;
         } else {
-            return this.unsatFormulas;
+            if (isSat) {
+                return this.satFormulas;
+            } else {
+                return this.unsatFormulas;
+            }
         }
     }
 

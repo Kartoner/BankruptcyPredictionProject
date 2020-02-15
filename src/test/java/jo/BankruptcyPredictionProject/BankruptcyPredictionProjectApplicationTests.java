@@ -5,7 +5,7 @@ import javax.xml.bind.JAXBException;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import jo.BankruptcyPredictionProject.Configuration.SATConfig;
+import jo.BankruptcyPredictionProject.Configuration.BPPConfig;
 import jo.BankruptcyPredictionProject.Domain.Parsers.ArffParser;
 import jo.BankruptcyPredictionProject.Domain.Repositories.*;
 
@@ -36,9 +36,9 @@ class BankruptcyPredictionProjectApplicationTests {
 	}
 
 	@Test
-	void readingSATConfigTest() throws JAXBException {
-		SATConfig satConfig = SATConfig.getInstance();
-		System.out.println(satConfig);
+	void readingBPPConfigTest() throws JAXBException {
+		BPPConfig bppConfig = BPPConfig.getInstance();
+		System.out.println(bppConfig);
 	}
 
 	/*@Test

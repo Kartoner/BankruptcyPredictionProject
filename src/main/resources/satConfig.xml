@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<satConfig>
-    <clauseLength>10</clauseLength>
-    <clauseNumber>20</clauseNumber>
-    <numberOfIterations>10</numberOfIterations>
-</satConfig>

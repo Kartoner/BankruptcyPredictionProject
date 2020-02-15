@@ -53,26 +53,28 @@ public class ArffParser{
                 Double value = record.value(i);
                 Literal newLiteral = null;
                 AttributeScope scope = this.scopeRepo.getApplicableScope(attrName, value);
-                String description = scope.toString();
-                Integer existingVariableSymbol = this.formulaRepo.getLiteralSymbolIfExists(description);
+                if (scope != null){
+                    String description = scope.toString();
+                    Integer existingVariableSymbol = this.formulaRepo.getLiteralSymbolIfExists(description);
 
-                if (record.classAttribute() != null){
-                    recordClass = record.value(record.classIndex());
-                }
-
-                if (existingVariableSymbol != null){
-                    newLiteral = new Literal(existingVariableSymbol, description, false, scope);
-                } else {
-                    boolean additionSuccessful = this.formulaRepo.addNewVariable(description, this.formulaRepo.getCurrentSymbol());
-
-                    if (additionSuccessful){
-                        newLiteral = new Literal(this.formulaRepo.getCurrentSymbol(), description, false, scope);
-                        this.formulaRepo.incrementCurrentSymbol();
+                    if (record.classAttribute() != null){
+                        recordClass = record.value(record.classIndex());
                     }
-                }
 
-                if (newLiteral != null){
-                    newFormula.attach(newLiteral);
+                    if (existingVariableSymbol != null){
+                        newLiteral = new Literal(existingVariableSymbol, description, false, scope);
+                    } else {
+                        boolean additionSuccessful = this.formulaRepo.addNewVariable(description, this.formulaRepo.getCurrentSymbol());
+
+                        if (additionSuccessful){
+                            newLiteral = new Literal(this.formulaRepo.getCurrentSymbol(), description, false, scope);
+                            this.formulaRepo.incrementCurrentSymbol();
+                        }
+                    }
+
+                    if (newLiteral != null){
+                        newFormula.attach(newLiteral);
+                    }
                 }
             }
         }
@@ -101,8 +103,11 @@ public class ArffParser{
             processingResult = processRecord(record);
 
             if (flushToRepo){
-                boolean result;
-                result = this.formulaRepo.writeNewFormula(this.parsedFormulas.get(this.parsedFormulas.size() - 1), processingResult);
+                boolean result = false;
+                
+                if (processingResult != null){
+                    result = this.formulaRepo.writeNewFormula(this.parsedFormulas.get(this.parsedFormulas.size() - 1), processingResult);
+                }
 
                 if (result){
                     count++;
