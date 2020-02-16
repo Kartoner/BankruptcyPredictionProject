@@ -12,6 +12,9 @@ public class AttributeScope {
     }
 
     public Boolean isApplicable(Double value){
+        if (value == null){
+            return Boolean.FALSE;
+        }
         if (this.rangeFrom != null && value < this.rangeFrom){
             return Boolean.FALSE;
         }

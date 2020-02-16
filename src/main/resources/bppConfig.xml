@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bppConfig>
-    <clauseLength>10</clauseLength>
+    <clauseLength>5</clauseLength>
     <clauseNumber>20</clauseNumber>
-    <numberOfIterations>10</numberOfIterations>
+    <numberOfIterations>20</numberOfIterations>
     <tryNegation>1</tryNegation>
     <fixedLength>0</fixedLength>
     <hardReset>0</hardReset>
     <toleranceThreshold>0.9</toleranceThreshold>
-    <fixedSize>1</fixedSize>
-    <minSize>5</minSize>
+    <fixedSize>0</fixedSize>
+    <minSize>2</minSize>
 </bppConfig>

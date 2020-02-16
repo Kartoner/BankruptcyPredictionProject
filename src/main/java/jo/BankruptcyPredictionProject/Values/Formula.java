@@ -1,6 +1,6 @@
 package jo.BankruptcyPredictionProject.Values;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +12,7 @@ public class Formula {
     private Map<String, Integer> uniqueVariables;
     
     public Formula(){
-        this.elements = new ArrayList<>();
+        this.elements = new LinkedList<>();
         this.uniqueVariables = new HashMap<>();
     }
     

@@ -101,7 +101,7 @@ public class BPPConfig {
         return this.toleranceThreshold;
     }
 
-    public boolean getFixedSize() {
+    public boolean isFixedSize() {
         return this.fixedSize;
     }
 

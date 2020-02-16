@@ -54,6 +54,11 @@ public class FormulaRepo {
         readFormulasFile(this.assessmentFilePath);
     }
 
+    public void refreshAssessmentFormulas(){
+        this.assessmentFormulas.clear();
+        readFormulasFile(this.assessmentFilePath);
+    }
+
     private void clear(){
         this.satFormulas.clear();
         this.unsatFormulas.clear();
@@ -97,7 +102,7 @@ public class FormulaRepo {
     }
 
     public boolean formulaExists(Formula formula, Boolean isSat) {
-        for (Formula existingFormula : getFormulas(isSat)) {
+        for (Formula existingFormula : this.getFormulas(isSat)) {
             if (formula.equals(existingFormula)) {
                 return true;
             }
@@ -237,5 +242,9 @@ public class FormulaRepo {
 
     private String prepareString(String s) {
         return s.trim();
+    }
+
+    public Map<String, Integer> getVariables(){
+        return this.variables;
     }
 }

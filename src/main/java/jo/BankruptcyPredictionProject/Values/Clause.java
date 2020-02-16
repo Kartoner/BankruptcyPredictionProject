@@ -1,6 +1,6 @@
 package jo.BankruptcyPredictionProject.Values;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import jo.BankruptcyPredictionProject.Values.Interface.FormulaElement;
@@ -9,7 +9,7 @@ public class Clause implements FormulaElement{
     private List<Literal> literals;
     
     public Clause(){
-        this.literals = new ArrayList<>();
+        this.literals = new LinkedList<>();
     }
     
     public List<Literal> getLiterals(){
@@ -18,6 +18,16 @@ public class Clause implements FormulaElement{
     
     public void attach(Literal literal){
         this.literals.add(literal);
+    }
+
+    public boolean literalAlreadyPresent(Literal newLiteral){
+        for (Literal literal : this.literals){
+            if (literal.toExtString().equals(newLiteral.toExtString())){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
