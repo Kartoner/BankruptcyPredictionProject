@@ -18,8 +18,7 @@ public class BPPConfig {
 
     private BPPConfig(int clauseLength, 
      int clauseNumber, 
-     int numberOfIterations, 
-     boolean tryNegation, 
+     int numberOfIterations,
      boolean fixedLength, 
      double toleranceThreshold, 
      boolean fixedSize, 
@@ -28,7 +27,6 @@ public class BPPConfig {
         this.clauseLength = clauseLength;
         this.clauseNumber = clauseNumber;
         this.numberOfIterations = numberOfIterations;
-        this.tryNegation = tryNegation;
         this.fixedLength = fixedLength;
         this.toleranceThreshold = toleranceThreshold;
         this.fixedSize = fixedSize;
@@ -54,9 +52,6 @@ public class BPPConfig {
 
     @XmlElement(name = "numberOfIterations")
     private int numberOfIterations;
-
-    @XmlElement(name = "tryNegation")
-    private boolean tryNegation;
 
     @XmlElement(name = "fixedLength")
     private boolean fixedLength;
@@ -85,10 +80,6 @@ public class BPPConfig {
         return this.numberOfIterations;
     }
 
-    public boolean isTryNegation() {
-        return this.tryNegation;
-    }
-
     public boolean isFixedLength() {
         return this.fixedLength;
     }
@@ -114,7 +105,6 @@ public class BPPConfig {
         return "Length of a single clause: " + this.clauseLength + "\n"
         + "Number of clauses: " + this.clauseNumber + "\n"
         + "Number of iterations: " + this.numberOfIterations + "\n"
-        + "Try negation: " + this.tryNegation + "\n"
         + "Fixed length of clauses: " + this.fixedLength + "\n"
         + "Hard reset after failure: " + this.hardReset + "\n"
         + "Tolerance threshold: " + this.toleranceThreshold + "\n"

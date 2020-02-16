@@ -119,33 +119,19 @@ public class RandomFormulaGenerator {
 
     private void fixFormula(Integer failingElementIndex){
         Random r = new Random();
-        boolean operation = Boolean.TRUE; // true - replace, false - negation (if allowed)
-
-        if (this.bppConfig.isTryNegation()){
-            operation = r.nextBoolean();
-        }
 
         FormulaElement failingElement = this.generatedFormula.getElements().get(failingElementIndex);
 
         if (failingElement instanceof Literal){
-            if (operation) {
-                this.generatedFormula.getElements().set(failingElementIndex, this.getRandomLiteral(r));
-            } else {
-                Literal literal = (Literal) failingElement;
-                literal.setIsNegative(!literal.getIsNegative());
-                this.generatedFormula.getElements().set(failingElementIndex, literal);
-            }
+            
+            this.generatedFormula.getElements().set(failingElementIndex, this.getRandomLiteral(r));
+            
         } else if (failingElement instanceof Clause){
             Clause failingClause = (Clause) failingElement;
             int randomLiteralIndex = r.nextInt(failingClause.getLiterals().size());
 
-            if (operation){
-                failingClause.getLiterals().set(randomLiteralIndex, this.getRandomLiteral(r));
-            } else {
-                Literal randomLiteral = failingClause.getLiterals().get(randomLiteralIndex);
-                randomLiteral.setIsNegative(!randomLiteral.getIsNegative());
-            }
-
+            failingClause.getLiterals().set(randomLiteralIndex, this.getRandomLiteral(r));
+            
             this.generatedFormula.getElements().set(failingElementIndex, failingClause);
         }
     }
@@ -193,15 +179,28 @@ public class RandomFormulaGenerator {
     }
 
     private Literal getRandomLiteral(Random r){
-        List<Formula> formulas = this.formulaRepo.getFormulas(r.nextBoolean());
+        boolean isSat = r.nextBoolean();
+        List<Formula> formulas = this.formulaRepo.getFormulas(isSat);
         Formula randomFormula = formulas.get(r.nextInt(formulas.size()));
         FormulaElement randomElement = randomFormula.getElements().get(r.nextInt(randomFormula.getFormulaSize()));
 
         if (randomElement instanceof Literal) {
-            return (Literal) randomElement;
+            Literal randomLiteral = (Literal) randomElement;
+
+            if (!isSat){
+                randomLiteral.setIsNegative(!randomLiteral.getIsNegative());
+            }
+
+            return randomLiteral;
         } else if (randomElement instanceof Clause){
             Clause randomClause = (Clause) randomElement;
-            return randomClause.getLiterals().get(r.nextInt(randomClause.getLiterals().size()));
+            Literal randomLiteral = randomClause.getLiterals().get(r.nextInt(randomClause.getLiterals().size()));
+
+            if (!isSat){
+                randomLiteral.setIsNegative(!randomLiteral.getIsNegative());
+            }
+            
+            return randomLiteral;
         }
 
         return null;
@@ -240,6 +239,7 @@ public class RandomFormulaGenerator {
             List<Boolean> result = new LinkedList<>();
 
             Instance record = data.get(i);
+            boolean recordClass = record.classValue() == 1.0 ? true : false;
             for (int j = 1; j < record.numAttributes(); j++){
                 String attrName = record.attribute(j).name();
                 Double value = record.value(j);
@@ -250,7 +250,7 @@ public class RandomFormulaGenerator {
                     if (formulaElement instanceof Literal){
                         Literal literal = (Literal) formulaElement;
                         if (literal.getScope() != null && literal.getScope().getAttrName().equals(attrName) && literal.getScope().isApplicable(value)){
-                            subResult.get(k).set(0, Boolean.TRUE && literal.getIsNegative());
+                            subResult.get(k).set(0, Boolean.TRUE && !literal.getIsNegative());
                         }
                     } else if (formulaElement instanceof Clause){
                         Clause clause = (Clause) formulaElement;
@@ -258,7 +258,7 @@ public class RandomFormulaGenerator {
                         for (int l = 0; l < clause.getLiterals().size(); l++){
                             Literal literal = clause.getLiterals().get(l);
                             if (literal.getScope() != null && literal.getScope().getAttrName().equals(attrName) && literal.getScope().isApplicable(value)){
-                                subResult.get(k).set(l, Boolean.TRUE && literal.getIsNegative());
+                                subResult.get(k).set(l, Boolean.TRUE && !literal.getIsNegative());
                             }
                         }
                     }
@@ -274,7 +274,7 @@ public class RandomFormulaGenerator {
 
                 result.add(evalSubResult);
 
-                if (!evalSubResult){
+                if (!evalSubResult && recordClass){
                     failingElements.put(result.size() - 1, failingElements.get(result.size() - 1) + 1);
                 }
             }
@@ -285,13 +285,21 @@ public class RandomFormulaGenerator {
                 evalResult = evalResult && result.get(j);
             }
 
+            if (evalResult && !recordClass){
+                for (Map.Entry<Integer, Integer> entry : failingElements.entrySet()){
+                    entry.setValue(entry.getValue() + 1);
+                }
+            } 
+
+            evalResult = evalResult && recordClass;
+
             if (evalResult) {
                 successCounter++;
             }
             
         }
 
-        System.out.println("Success percentage: " + (successCounter * 1.0 / data.size() * 1.0) * 1.0);
+        System.out.println("Success ratio: " + (successCounter * 1.0 / data.size() * 1.0) * 1.0);
 
         if ((successCounter * 1.0 / data.size() * 1.0) * 1.0 >= this.bppConfig.getToleranceThreshold()){
             isValid = true;
