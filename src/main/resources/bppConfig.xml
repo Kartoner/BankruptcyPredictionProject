@@ -5,7 +5,9 @@
     <numberOfIterations>20</numberOfIterations>
     <fixedLength>0</fixedLength>
     <hardReset>0</hardReset>
-    <toleranceThreshold>0.9</toleranceThreshold>
+    <formulaToleranceThreshold>0.9</formulaToleranceThreshold>
+    <elementToleranceThreshold>0.9</elementToleranceThreshold>
     <fixedSize>0</fixedSize>
     <minSize>2</minSize>
+    <clauseFixAttempts>5</clauseFixAttempts>
 </bppConfig>

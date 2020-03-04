@@ -20,17 +20,21 @@ public class BPPConfig {
      int clauseNumber, 
      int numberOfIterations,
      boolean fixedLength, 
-     double toleranceThreshold, 
+     double formulaToleranceThreshold,
+     double elementToleranceThreshold,
      boolean fixedSize, 
-     int minSize)
+     int minSize,
+     int clauseFixAttempts)
      throws JAXBException{
         this.clauseLength = clauseLength;
         this.clauseNumber = clauseNumber;
         this.numberOfIterations = numberOfIterations;
         this.fixedLength = fixedLength;
-        this.toleranceThreshold = toleranceThreshold;
+        this.formulaToleranceThreshold = formulaToleranceThreshold;
+        this.elementToleranceThreshold = elementToleranceThreshold;
         this.fixedSize = fixedSize;
         this.minSize = minSize;
+        this.clauseFixAttempts = clauseFixAttempts;
     }
 
     public static BPPConfig getInstance() throws JAXBException {
@@ -59,14 +63,20 @@ public class BPPConfig {
     @XmlElement(name = "hardReset")
     private boolean hardReset;
 
-    @XmlElement(name = "toleranceThreshold")
-    private double toleranceThreshold;
+    @XmlElement(name = "formulaToleranceThreshold")
+    private double formulaToleranceThreshold;
+
+    @XmlElement(name = "elementToleranceThreshold")
+    private double elementToleranceThreshold;
 
     @XmlElement(name = "fixedSize")
     private boolean fixedSize;
 
     @XmlElement(name = "minSize")
     private int minSize;
+
+    @XmlElement(name = "clauseFixAttempts")
+    private int clauseFixAttempts;
 
     public int getClauseLength(){
         return this.clauseLength;
@@ -88,8 +98,12 @@ public class BPPConfig {
         return this.hardReset;
     }
 
-    public double getToleranceThreshold() {
-        return this.toleranceThreshold;
+    public double getFormulaToleranceThreshold() {
+        return this.formulaToleranceThreshold;
+    }
+
+    public double getElementToleranceThreshold() {
+        return this.elementToleranceThreshold;
     }
 
     public boolean isFixedSize() {
@@ -100,6 +114,10 @@ public class BPPConfig {
         return this.minSize;
     }
 
+    public int getClauseFixAttempts() {
+        return this.clauseFixAttempts;
+    }
+
     @Override
     public String toString(){
         return "Length of a single clause: " + this.clauseLength + "\n"
@@ -107,8 +125,10 @@ public class BPPConfig {
         + "Number of iterations: " + this.numberOfIterations + "\n"
         + "Fixed length of clauses: " + this.fixedLength + "\n"
         + "Hard reset after failure: " + this.hardReset + "\n"
-        + "Tolerance threshold: " + this.toleranceThreshold + "\n"
+        + "Formula tolerance threshold: " + this.formulaToleranceThreshold + "\n"
+        + "Element tolerance threshold: " + this.elementToleranceThreshold + "\n"
         + "Fixed size of formula: " + this.fixedSize + "\n"
-        + "Minimal size of a single clause: " + this.minSize;
+        + "Minimal size of a single clause: " + this.minSize + "\n"
+        + "Number of attempts for fixing a clause: " + this.clauseFixAttempts;
     }
 }

@@ -42,7 +42,7 @@ public class RandomFormulaGenerator {
         return instance;
     }
 
-    public void tryGenerateSetOfRandomFormulas(int numOfFormulas){
+    public void tryGenerateSetOfRandomFormulas(int numOfFormulas) throws JAXBException {
         String oldPath = this.arffRepo.getFilePath();
         Instances oldData = this.arffRepo.getData();
         this.arffRepo.setFilePath(this.testDataFilePath);
@@ -67,7 +67,7 @@ public class RandomFormulaGenerator {
         this.formulaRepo.refreshAssessmentFormulas();
     }
 
-    public boolean generateFormula(){
+    public boolean generateFormula() throws JAXBException {
         boolean isFormulaGenerated = Boolean.FALSE;
         int failCounter = 0;
 
@@ -104,7 +104,7 @@ public class RandomFormulaGenerator {
         return isFormulaGenerated;
     }
 
-    private void generateNewFormula(){
+    private void generateNewFormula() throws JAXBException {
         this.generatedFormula = new Formula();
         Random r = new Random();
 
@@ -117,14 +117,14 @@ public class RandomFormulaGenerator {
         }
     }
 
-    private void fixFormula(Integer failingElementIndex){
+    private void fixFormula(Integer failingElementIndex) throws JAXBException {
         Random r = new Random();
 
         FormulaElement failingElement = this.generatedFormula.getElements().get(failingElementIndex);
 
         if (failingElement instanceof Literal){
             
-            this.generatedFormula.getElements().set(failingElementIndex, this.getRandomLiteral(r));
+            this.generatedFormula.getElements().set(failingElementIndex, getValidElement(this.getRandomLiteral(r), r));
             
         } else if (failingElement instanceof Clause){
             Clause failingClause = (Clause) failingElement;
@@ -132,29 +132,29 @@ public class RandomFormulaGenerator {
 
             failingClause.getLiterals().set(randomLiteralIndex, this.getRandomLiteral(r));
             
-            this.generatedFormula.getElements().set(failingElementIndex, failingClause);
+            this.generatedFormula.getElements().set(failingElementIndex, getValidElement(failingClause, r));
         }
     }
 
-    private void fillRandomFormula(int formulaSize, Random r){
+    private void fillRandomFormula(int formulaSize, Random r) throws JAXBException {
         for (int i = 0; i < formulaSize; i++){
             if (this.bppConfig.isFixedLength()) {
                 if (this.bppConfig.getClauseLength() == 1){
-                    this.generatedFormula.attach(this.getRandomLiteral(r));
+                    this.generatedFormula.attach(getValidElement(this.getRandomLiteral(r), r));
                 } else {
                     Clause randomClause = fillRandomClause(this.bppConfig.getClauseLength(), r);
 
-                    this.generatedFormula.attach(randomClause);
+                    this.generatedFormula.attach(getValidElement(randomClause, r));
                 }
             } else {
                 int randomLength = r.nextInt(this.bppConfig.getClauseLength() - this.bppConfig.getMinSize() + 1) + this.bppConfig.getMinSize();
 
                 if (randomLength == 1){
-                    this.generatedFormula.attach(this.getRandomLiteral(r));
+                    this.generatedFormula.attach(getValidElement(this.getRandomLiteral(r), r));
                 } else {
                     Clause randomClause = fillRandomClause(randomLength, r);
 
-                    this.generatedFormula.attach(randomClause);
+                    this.generatedFormula.attach(getValidElement(randomClause, r));
                 }
             }
         }
@@ -204,6 +204,130 @@ public class RandomFormulaGenerator {
         }
 
         return null;
+    }
+
+    private FormulaElement getValidElement(FormulaElement element, Random r) throws JAXBException {
+        if (element instanceof Literal){
+            if (!validateElement(element)){
+                while (!validateElement(element)){
+                    element = getRandomLiteral(r);
+                }
+            }
+        } else if (element instanceof Clause){
+            Clause clause = (Clause) element;
+            if (!validateElement(clause)){
+                int fixCounter = 1;
+                while (!validateElement(clause)){
+                    if (fixCounter < this.bppConfig.getClauseFixAttempts()){
+                        int switchIndex = r.nextInt(clause.getLiterals().size());
+                        clause.getLiterals().set(switchIndex, getRandomLiteral(r));
+                        element = clause;
+                        fixCounter++;
+                    } else {
+                        element = fillRandomClause(clause.getLiterals().size(), r);
+                        fixCounter = 0;
+                    }
+                }
+            }
+        }
+
+        return element;
+    }
+
+    private boolean validateElement(FormulaElement randomElement) throws JAXBException {
+        int successCounter = 0;
+
+        if (randomElement instanceof Literal){
+            successCounter += validateLiteral((Literal) randomElement);
+        } else if (randomElement instanceof Clause){
+            successCounter += validateClause((Clause) randomElement);
+        }
+
+        double successPercentage = (successCounter * 1.0 / (this.formulaRepo.getFormulas(true).size() + this.formulaRepo.getFormulas(false).size()) * 1.0) * 1.0;
+        
+        return successPercentage >= BPPConfig.getInstance().getElementToleranceThreshold();
+    }
+
+    private int validateLiteral(Literal randomLiteral){
+        int successCounter = 0;
+
+        successCounter += validateLiteralWithSet(randomLiteral, this.formulaRepo.getFormulas(true));
+        successCounter += validateLiteralWithSet(randomLiteral, this.formulaRepo.getFormulas(false));
+
+        return successCounter;
+    }
+
+    private int validateLiteralWithSet(Literal randomLiteral, List<Formula> formulas){
+        int successCounter = 0;
+
+        for (Formula formula : formulas){
+            for (FormulaElement element : formula.getElements()){
+                if (element instanceof Literal){
+                    if (element.toExtString().equals(randomLiteral.toExtString())){
+                        successCounter++;
+                        break;
+                    }
+                } else if (element instanceof Clause){
+                    Clause clause = (Clause) element;
+                    boolean isValid = false;
+
+                    for (Literal literal : clause.getLiterals()){
+                        if (literal.toExtString().equals(randomLiteral.toExtString())){
+                            successCounter++;
+                            isValid = true;
+                            break;
+                        }
+                    }
+                    if (isValid){
+                        break;
+                    }
+                }
+            }
+        }
+
+        return successCounter;
+    }
+
+    private int validateClause(Clause randomClause){
+        int successCounter = 0;
+
+        successCounter += validateClauseWithSet(randomClause, this.formulaRepo.getFormulas(true));
+        successCounter += validateClauseWithSet(randomClause, this.formulaRepo.getFormulas(false));
+
+        return successCounter;
+    }
+
+    private int validateClauseWithSet(Clause randomClause, List<Formula> formulas){
+        int successCounter = 0;
+
+        for (Formula formula : formulas){
+            for (FormulaElement element : formula.getElements()){
+                for (Literal randomLiteral : randomClause.getLiterals()){
+                    if (element instanceof Literal){
+                        if (element.toExtString().equals(randomLiteral.toExtString())){
+                            successCounter++;
+                            break;
+                        }
+                    } else if (element instanceof Clause){
+                        Clause clause = (Clause) element;
+                        boolean isValid = false;
+
+                        for (Literal literal : clause.getLiterals()){
+                            if (literal.toExtString().equals(randomLiteral.toExtString())){
+                                successCounter++;
+                                isValid = true;
+                                break;
+                            }
+                        }
+                        if (isValid){
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return successCounter;
     }
 
     private TestingResult testFormula(){
@@ -301,7 +425,7 @@ public class RandomFormulaGenerator {
 
         System.out.println("Success ratio: " + (successCounter * 1.0 / data.size() * 1.0) * 1.0);
 
-        if ((successCounter * 1.0 / data.size() * 1.0) * 1.0 >= this.bppConfig.getToleranceThreshold()){
+        if ((successCounter * 1.0 / data.size() * 1.0) * 1.0 >= this.bppConfig.getFormulaToleranceThreshold()){
             isValid = true;
         }
 
