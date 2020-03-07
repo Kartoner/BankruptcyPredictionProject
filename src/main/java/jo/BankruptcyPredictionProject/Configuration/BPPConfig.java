@@ -33,7 +33,7 @@ public class BPPConfig {
         this.formulaToleranceThreshold = formulaToleranceThreshold;
         this.elementToleranceThreshold = elementToleranceThreshold;
         this.fixedSize = fixedSize;
-        this.minSize = minSize;
+        this.minLength = minSize;
         this.clauseFixAttempts = clauseFixAttempts;
     }
 
@@ -72,8 +72,8 @@ public class BPPConfig {
     @XmlElement(name = "fixedSize")
     private boolean fixedSize;
 
-    @XmlElement(name = "minSize")
-    private int minSize;
+    @XmlElement(name = "minLength")
+    private int minLength;
 
     @XmlElement(name = "clauseFixAttempts")
     private int clauseFixAttempts;
@@ -110,8 +110,8 @@ public class BPPConfig {
         return this.fixedSize;
     }
 
-    public int getMinSize() {
-        return this.minSize;
+    public int getMinLength() {
+        return this.minLength;
     }
 
     public int getClauseFixAttempts() {
@@ -128,7 +128,7 @@ public class BPPConfig {
         + "Formula tolerance threshold: " + this.formulaToleranceThreshold + "\n"
         + "Element tolerance threshold: " + this.elementToleranceThreshold + "\n"
         + "Fixed size of formula: " + this.fixedSize + "\n"
-        + "Minimal size of a single clause: " + this.minSize + "\n"
+        + "Minimal size of a single clause: " + this.minLength + "\n"
         + "Number of attempts for fixing a clause: " + this.clauseFixAttempts;
     }
 }

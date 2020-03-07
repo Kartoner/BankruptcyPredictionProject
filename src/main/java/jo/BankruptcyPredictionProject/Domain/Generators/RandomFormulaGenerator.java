@@ -147,7 +147,7 @@ public class RandomFormulaGenerator {
                     this.generatedFormula.attach(getValidElement(randomClause, r));
                 }
             } else {
-                int randomLength = r.nextInt(this.bppConfig.getClauseLength() - this.bppConfig.getMinSize() + 1) + this.bppConfig.getMinSize();
+                int randomLength = r.nextInt(this.bppConfig.getClauseLength() - this.bppConfig.getMinLength() + 1) + this.bppConfig.getMinLength();
 
                 if (randomLength == 1){
                     this.generatedFormula.attach(getValidElement(this.getRandomLiteral(r), r));
@@ -242,8 +242,11 @@ public class RandomFormulaGenerator {
         } else if (randomElement instanceof Clause){
             successCounter += validateClause((Clause) randomElement);
         }
+        System.out.println(successCounter);
 
         double successPercentage = (successCounter * 1.0 / (this.formulaRepo.getFormulas(true).size() + this.formulaRepo.getFormulas(false).size()) * 1.0) * 1.0;
+        System.out.println(successPercentage);
+
         
         return successPercentage >= BPPConfig.getInstance().getElementToleranceThreshold();
     }
@@ -251,19 +254,22 @@ public class RandomFormulaGenerator {
     private int validateLiteral(Literal randomLiteral){
         int successCounter = 0;
 
-        successCounter += validateLiteralWithSet(randomLiteral, this.formulaRepo.getFormulas(true));
-        successCounter += validateLiteralWithSet(randomLiteral, this.formulaRepo.getFormulas(false));
+        successCounter += validateLiteralWithSet(randomLiteral, this.formulaRepo.getFormulas(true), true);
+        successCounter += validateLiteralWithSet(randomLiteral, this.formulaRepo.getFormulas(false), false);
 
         return successCounter;
     }
 
-    private int validateLiteralWithSet(Literal randomLiteral, List<Formula> formulas){
+    private int validateLiteralWithSet(Literal randomLiteral, List<Formula> formulas, boolean isSat){
         int successCounter = 0;
 
         for (Formula formula : formulas){
             for (FormulaElement element : formula.getElements()){
                 if (element instanceof Literal){
-                    if (element.toExtString().equals(randomLiteral.toExtString())){
+                    Literal literal = (Literal) element;
+
+                    if (literal.getDescription().equals(randomLiteral.getDescription())
+                     && ((literal.getIsNegative() == randomLiteral.getIsNegative()) ^ isSat)){
                         successCounter++;
                         break;
                     }
@@ -272,7 +278,8 @@ public class RandomFormulaGenerator {
                     boolean isValid = false;
 
                     for (Literal literal : clause.getLiterals()){
-                        if (literal.toExtString().equals(randomLiteral.toExtString())){
+                        if (literal.getDescription().equals(randomLiteral.getDescription())
+                         && ((literal.getIsNegative() == randomLiteral.getIsNegative()) ^ isSat)){
                             successCounter++;
                             isValid = true;
                             break;
@@ -291,29 +298,34 @@ public class RandomFormulaGenerator {
     private int validateClause(Clause randomClause){
         int successCounter = 0;
 
-        successCounter += validateClauseWithSet(randomClause, this.formulaRepo.getFormulas(true));
-        successCounter += validateClauseWithSet(randomClause, this.formulaRepo.getFormulas(false));
+        successCounter += validateClauseWithSet(randomClause, this.formulaRepo.getFormulas(true), true);
+        successCounter += validateClauseWithSet(randomClause, this.formulaRepo.getFormulas(false), false);
 
         return successCounter;
     }
 
-    private int validateClauseWithSet(Clause randomClause, List<Formula> formulas){
+    private int validateClauseWithSet(Clause randomClause, List<Formula> formulas, boolean isSat){
         int successCounter = 0;
 
         for (Formula formula : formulas){
             for (FormulaElement element : formula.getElements()){
+                boolean isValid = false;
                 for (Literal randomLiteral : randomClause.getLiterals()){
                     if (element instanceof Literal){
-                        if (element.toExtString().equals(randomLiteral.toExtString())){
+                        Literal literal = (Literal) element;
+
+                        if (literal.getDescription().equals(randomLiteral.getDescription())
+                         && ((literal.getIsNegative() == randomLiteral.getIsNegative()) ^ isSat)){
                             successCounter++;
+                            isValid = true;
                             break;
                         }
                     } else if (element instanceof Clause){
                         Clause clause = (Clause) element;
-                        boolean isValid = false;
 
                         for (Literal literal : clause.getLiterals()){
-                            if (literal.toExtString().equals(randomLiteral.toExtString())){
+                            if (literal.getDescription().equals(randomLiteral.getDescription())
+                             && ((literal.getIsNegative() == randomLiteral.getIsNegative()) ^ isSat)){
                                 successCounter++;
                                 isValid = true;
                                 break;
@@ -323,6 +335,9 @@ public class RandomFormulaGenerator {
                             break;
                         }
                     }
+                }
+                if (isValid){
+                    break;
                 }
             }
         }
@@ -336,6 +351,10 @@ public class RandomFormulaGenerator {
         boolean isValid = false;
         Integer failingElement = null;
         int successCounter = 0;
+        int bankrupt = 0;
+        int bankruptMatched = 0;
+        int notBankrupt = 0;
+        int notBankruptMatched = 0;
 
         Map<Integer, Integer> failingElements = new HashMap<>();
 
@@ -364,6 +383,13 @@ public class RandomFormulaGenerator {
 
             Instance record = data.get(i);
             boolean recordClass = record.classValue() == 1.0 ? true : false;
+
+            if (recordClass){
+                bankrupt++;
+            } else {
+                notBankrupt++;
+            }
+
             for (int j = 1; j < record.numAttributes(); j++){
                 String attrName = record.attribute(j).name();
                 Double value = record.value(j);
@@ -398,7 +424,7 @@ public class RandomFormulaGenerator {
 
                 result.add(evalSubResult);
 
-                if (!evalSubResult && recordClass){
+                if (evalSubResult ^ recordClass){
                     failingElements.put(result.size() - 1, failingElements.get(result.size() - 1) + 1);
                 }
             }
@@ -409,20 +435,25 @@ public class RandomFormulaGenerator {
                 evalResult = evalResult && result.get(j);
             }
 
-            if (evalResult && !recordClass){
-                for (Map.Entry<Integer, Integer> entry : failingElements.entrySet()){
-                    entry.setValue(entry.getValue() + 1);
-                }
-            } 
-
-            evalResult = evalResult && recordClass;
+            evalResult = !(evalResult ^ recordClass);
 
             if (evalResult) {
                 successCounter++;
+                if (recordClass){
+                    bankruptMatched++;
+                } else {
+                    notBankruptMatched++;
+                }
             }
             
         }
 
+        System.out.println("Formula: ");
+        System.out.println(this.generatedFormula.toExtString());
+        System.out.println("Data size: " + data.size());
+        System.out.println("Matched records: " + successCounter);
+        System.out.println("Bankrupt matched: " + bankruptMatched + " / " + bankrupt);
+        System.out.println("Not bankrupt matched: " + notBankruptMatched + " / " + notBankrupt);
         System.out.println("Success ratio: " + (successCounter * 1.0 / data.size() * 1.0) * 1.0);
 
         if ((successCounter * 1.0 / data.size() * 1.0) * 1.0 >= this.bppConfig.getFormulaToleranceThreshold()){

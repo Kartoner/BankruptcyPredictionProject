@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bppConfig>
     <clauseLength>5</clauseLength>
-    <clauseNumber>10</clauseNumber>
+    <clauseNumber>3</clauseNumber>
     <numberOfIterations>20</numberOfIterations>
     <fixedLength>0</fixedLength>
     <hardReset>0</hardReset>
     <formulaToleranceThreshold>0.9</formulaToleranceThreshold>
     <elementToleranceThreshold>0.9</elementToleranceThreshold>
-    <fixedSize>0</fixedSize>
-    <minSize>2</minSize>
-    <clauseFixAttempts>5</clauseFixAttempts>
+    <fixedSize>1</fixedSize>
+    <minLength>3</minLength>
+    <clauseFixAttempts>10</clauseFixAttempts>
 </bppConfig>
