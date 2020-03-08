@@ -23,10 +23,12 @@ public class FormulaRepo {
     private final String satFilePath = "./src/main/resources/satFormulas.txt";
     private final String unsatFilePath = "./src/main/resources/unsatFormulas.txt";
     private final String assessmentFilePath = "./src/main/resources/assessmentFormulas.txt";
+    private final String randomMatchingRulesFilePath = "./src/main/resources/randomMatchingRules.txt";
 
     private List<Formula> satFormulas;
     private List<Formula> unsatFormulas;
     private List<Formula> assessmentFormulas;
+    private List<FormulaElement> randomMatchingRules;
     private Map<String, Integer> variables;
 
     private int currentSymbol;
@@ -35,6 +37,7 @@ public class FormulaRepo {
         this.satFormulas = new ArrayList<>();
         this.unsatFormulas = new ArrayList<>();
         this.assessmentFormulas = new ArrayList<>();
+        this.randomMatchingRules = new ArrayList<>();
         this.variables = new HashMap<>();
         currentSymbol = 1;
     }
@@ -52,6 +55,7 @@ public class FormulaRepo {
         readFormulasFile(this.satFilePath);
         readFormulasFile(this.unsatFilePath);
         readFormulasFile(this.assessmentFilePath);
+        readMatchingRulesFile();
     }
 
     public void refreshAssessmentFormulas(){
@@ -59,10 +63,16 @@ public class FormulaRepo {
         readFormulasFile(this.assessmentFilePath);
     }
 
+    public void refreshMatchingRules(){
+        this.randomMatchingRules.clear();
+        readMatchingRulesFile();
+    }
+
     private void clear(){
         this.satFormulas.clear();
         this.unsatFormulas.clear();
         this.assessmentFormulas.clear();
+        this.randomMatchingRules.clear();
         this.variables.clear();
     }
 
@@ -101,6 +111,40 @@ public class FormulaRepo {
         return true;
     }
 
+    public boolean writeNewMatchingRule(FormulaElement element) {
+        if (!matchingRuleExists(element)){
+            try {
+                BufferedWriter bw = new BufferedWriter(new FileWriter(this.randomMatchingRulesFilePath, true));
+                bw.append(element.toExtString()).append("\n").append("---").append("\n");
+                bw.flush();
+                bw.close();
+            } catch (FileNotFoundException e) {
+                System.out.println("File: " + this.randomMatchingRulesFilePath + " not found!");
+                e.printStackTrace();
+                return false;
+            } catch (IOException e) {
+                System.out.println("Writing to file: " + this.randomMatchingRulesFilePath + " failed!");
+                e.printStackTrace();
+                return false;
+            }
+
+            System.out.println("Written new formula to file: " + this.randomMatchingRulesFilePath);
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean matchingRuleExists(FormulaElement element) {
+        for (FormulaElement formulaElement : this.randomMatchingRules){
+            if (formulaElement.toExtString().equals(element.toExtString())){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public boolean formulaExists(Formula formula, Boolean isSat) {
         for (Formula existingFormula : this.getFormulas(isSat)) {
             if (formula.equals(existingFormula)) {
@@ -121,6 +165,10 @@ public class FormulaRepo {
                 return this.unsatFormulas;
             }
         }
+    }
+
+    public List<FormulaElement> getMatchingRules(){
+        return this.randomMatchingRules;
     }
 
     public Integer getLiteralSymbolIfExists(String literalDescription){
@@ -189,6 +237,36 @@ public class FormulaRepo {
         }
 
         System.out.println("Done reading from file: " + formulasFilePath + ". Loaded formulas: " + loadedFormulas);
+    }
+
+    private void readMatchingRulesFile() {
+        int loadedRules = 0;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(this.randomMatchingRulesFilePath))) {
+            String line = "";
+
+            while (line != null) {
+                line = br.readLine();
+
+                if (line != null) {
+                    if (line.equals("---")) {
+                        continue;
+                    } else {
+                        this.randomMatchingRules.add(processLine(prepareString(line)));
+
+                        loadedRules++;
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File: " + this.randomMatchingRulesFilePath + " not found!");
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("Reading from file: " + this.randomMatchingRulesFilePath + " failed!");
+            e.printStackTrace();
+        }
+
+        System.out.println("Done reading from file: " + this.randomMatchingRulesFilePath + ". Loaded rules: " + loadedRules);
     }
 
     private FormulaElement processLine(String line){

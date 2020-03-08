@@ -115,6 +115,10 @@ public class RandomFormulaGenerator {
 
             this.fillRandomFormula(randomSize, r);
         }
+
+        for (FormulaElement element : this.formulaRepo.getMatchingRules()){
+            this.generatedFormula.attach(element);
+        }
     }
 
     private void fixFormula(Integer failingElementIndex) throws JAXBException {
@@ -133,6 +137,10 @@ public class RandomFormulaGenerator {
             failingClause.getLiterals().set(randomLiteralIndex, this.getRandomLiteral(r));
             
             this.generatedFormula.getElements().set(failingElementIndex, getValidElement(failingClause, r));
+        }
+
+        for (FormulaElement element : this.formulaRepo.getMatchingRules()){
+            this.generatedFormula.attach(element);
         }
     }
 
@@ -242,10 +250,8 @@ public class RandomFormulaGenerator {
         } else if (randomElement instanceof Clause){
             successCounter += validateClause((Clause) randomElement);
         }
-        System.out.println(successCounter);
 
         double successPercentage = (successCounter * 1.0 / (this.formulaRepo.getFormulas(true).size() + this.formulaRepo.getFormulas(false).size()) * 1.0) * 1.0;
-        System.out.println(successPercentage);
 
         
         return successPercentage >= BPPConfig.getInstance().getElementToleranceThreshold();
@@ -269,7 +275,8 @@ public class RandomFormulaGenerator {
                     Literal literal = (Literal) element;
 
                     if (literal.getDescription().equals(randomLiteral.getDescription())
-                     && ((literal.getIsNegative() == randomLiteral.getIsNegative()) ^ isSat)){
+                    && (((literal.getIsNegative() == randomLiteral.getIsNegative()) && isSat)
+                     || ((literal.getIsNegative() != randomLiteral.getIsNegative()) && !isSat))){
                         successCounter++;
                         break;
                     }
@@ -279,7 +286,8 @@ public class RandomFormulaGenerator {
 
                     for (Literal literal : clause.getLiterals()){
                         if (literal.getDescription().equals(randomLiteral.getDescription())
-                         && ((literal.getIsNegative() == randomLiteral.getIsNegative()) ^ isSat)){
+                        && (((literal.getIsNegative() == randomLiteral.getIsNegative()) && isSat)
+                         || ((literal.getIsNegative() != randomLiteral.getIsNegative()) && !isSat))){
                             successCounter++;
                             isValid = true;
                             break;
@@ -315,7 +323,8 @@ public class RandomFormulaGenerator {
                         Literal literal = (Literal) element;
 
                         if (literal.getDescription().equals(randomLiteral.getDescription())
-                         && ((literal.getIsNegative() == randomLiteral.getIsNegative()) ^ isSat)){
+                         && (((literal.getIsNegative() == randomLiteral.getIsNegative()) && isSat)
+                          || ((literal.getIsNegative() != randomLiteral.getIsNegative()) && !isSat))){
                             successCounter++;
                             isValid = true;
                             break;
@@ -325,7 +334,8 @@ public class RandomFormulaGenerator {
 
                         for (Literal literal : clause.getLiterals()){
                             if (literal.getDescription().equals(randomLiteral.getDescription())
-                             && ((literal.getIsNegative() == randomLiteral.getIsNegative()) ^ isSat)){
+                            && (((literal.getIsNegative() == randomLiteral.getIsNegative()) && isSat)
+                             || ((literal.getIsNegative() != randomLiteral.getIsNegative()) && !isSat))){
                                 successCounter++;
                                 isValid = true;
                                 break;
@@ -357,9 +367,11 @@ public class RandomFormulaGenerator {
         int notBankruptMatched = 0;
 
         Map<Integer, Integer> failingElements = new HashMap<>();
+        Map<Integer, Integer> matchingElements = new HashMap<>();
 
         for (int i = 0; i < this.generatedFormula.getFormulaSize(); i++){
             failingElements.put(i, 0);
+            matchingElements.put(i, 0);
         }
 
         Instances data = arffRepo.getData();
@@ -426,6 +438,8 @@ public class RandomFormulaGenerator {
 
                 if (evalSubResult ^ recordClass){
                     failingElements.put(result.size() - 1, failingElements.get(result.size() - 1) + 1);
+                } else {
+                    matchingElements.put(result.size() - 1, failingElements.get(result.size() - 1) + 1);
                 }
             }
 
@@ -470,6 +484,14 @@ public class RandomFormulaGenerator {
             }
 
             failingElement = maxEntry.getKey();
+        }
+
+        for (Map.Entry<Integer, Integer> entry : matchingElements.entrySet()){
+            double matchingRatio = ((entry.getValue() * 1.0) / (data.size() * 1.0)) * 1.0;
+
+            if (matchingRatio >= this.bppConfig.getElementToleranceThreshold()){
+                this.formulaRepo.writeNewMatchingRule(this.generatedFormula.getElements().get(entry.getKey()));
+            }
         }
 
         testingResult = new TestingResult(isValid, failingElement);

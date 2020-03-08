@@ -25,19 +25,31 @@ public class Formula {
     }
     
     public void attach(FormulaElement formulaElement){
-        this.elements.add(formulaElement);
+        if (!containsElement(formulaElement)){
+            this.elements.add(formulaElement);
 
-        if (formulaElement instanceof Literal){
-            Literal newLiteral = (Literal) formulaElement;
+            if (formulaElement instanceof Literal){
+                Literal newLiteral = (Literal) formulaElement;
             
-            addIfUniqueVariable(newLiteral);
-        } else if (formulaElement instanceof Clause){
-            Clause clause = (Clause) formulaElement;
+                addIfUniqueVariable(newLiteral);
+            } else if (formulaElement instanceof Clause){
+                Clause clause = (Clause) formulaElement;
 
-            for (Literal literal : clause.getLiterals()){
-                addIfUniqueVariable(literal);
+                for (Literal literal : clause.getLiterals()){
+                    addIfUniqueVariable(literal);
+                }
             }
         }
+    }
+
+    private boolean containsElement(FormulaElement element){
+        for (FormulaElement formulaElement: this.elements){
+            if (formulaElement.toExtString().equals(element.toExtString())){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void addIfUniqueVariable(Literal literal){
