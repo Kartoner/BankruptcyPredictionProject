@@ -402,7 +402,7 @@ public class RandomFormulaGenerator {
                 notBankrupt++;
             }
 
-            for (int j = 1; j < record.numAttributes(); j++){
+            for (int j = 0; j < record.numAttributes(); j++){
                 String attrName = record.attribute(j).name();
                 Double value = record.value(j);
 

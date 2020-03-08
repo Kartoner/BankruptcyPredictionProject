@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bppConfig>
     <clauseLength>8</clauseLength>
-    <clauseNumber>8</clauseNumber>
+    <clauseNumber>20</clauseNumber>
     <numberOfIterations>20</numberOfIterations>
     <fixedLength>0</fixedLength>
     <hardReset>0</hardReset>

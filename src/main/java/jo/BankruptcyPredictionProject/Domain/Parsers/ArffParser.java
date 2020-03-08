@@ -47,7 +47,7 @@ public class ArffParser{
     public Boolean processRecord(Instance record){
         Formula newFormula = new Formula();
         Double recordClass = null;
-        for (int i = 1; i < record.numAttributes(); i++){
+        for (int i = 0; i < record.numAttributes(); i++){
             String attrName = record.attribute(i).name();
             if (this.scopeRepo.isScopeForAttribute(attrName)){
                 Double value = record.value(i);
