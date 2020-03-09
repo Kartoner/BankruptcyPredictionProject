@@ -23,6 +23,7 @@ public class BPPConfig {
      double formulaToleranceThreshold,
      double elementToleranceThreshold,
      boolean fixedSize, 
+     int minLength,
      int minSize,
      int clauseFixAttempts)
      throws JAXBException{
@@ -33,7 +34,8 @@ public class BPPConfig {
         this.formulaToleranceThreshold = formulaToleranceThreshold;
         this.elementToleranceThreshold = elementToleranceThreshold;
         this.fixedSize = fixedSize;
-        this.minLength = minSize;
+        this.minLength = minLength;
+        this.minSize = minSize;
         this.clauseFixAttempts = clauseFixAttempts;
     }
 
@@ -75,6 +77,9 @@ public class BPPConfig {
     @XmlElement(name = "minLength")
     private int minLength;
 
+    @XmlElement(name = "minSize")
+    private int minSize;
+
     @XmlElement(name = "clauseFixAttempts")
     private int clauseFixAttempts;
 
@@ -114,6 +119,10 @@ public class BPPConfig {
         return this.minLength;
     }
 
+    public int getMinSize() {
+        return this.minSize;
+    }
+
     public int getClauseFixAttempts() {
         return this.clauseFixAttempts;
     }
@@ -129,6 +138,7 @@ public class BPPConfig {
         + "Element tolerance threshold: " + this.elementToleranceThreshold + "\n"
         + "Fixed size of formula: " + this.fixedSize + "\n"
         + "Minimal size of a single clause: " + this.minLength + "\n"
+        + "Minimal size of a formula: " + this.minSize + "\n"
         + "Number of attempts for fixing a clause: " + this.clauseFixAttempts;
     }
 }

@@ -75,7 +75,7 @@ public class RandomFormulaGenerator {
         System.out.println("Iteration no.: " + failCounter);
         generateNewFormula();
 
-        TestingResult testingResult = testFormula();
+        TestingResult testingResult = testFormula(null, null, null);
 
         if (!testingResult.isValid()){
             failCounter++;
@@ -89,7 +89,7 @@ public class RandomFormulaGenerator {
                     fixFormula(testingResult.getFailingElement());
                 }
 
-                testingResult = this.testFormula();
+                testingResult = this.testFormula(testingResult.getSuccessRatio(), testingResult.getFormula(), testingResult.getFailingElement());
 
                 if (testingResult.isValid()){
                     return Boolean.TRUE;
@@ -111,7 +111,7 @@ public class RandomFormulaGenerator {
         if (this.bppConfig.isFixedSize()){
             this.fillRandomFormula(this.bppConfig.getClauseNumber(), r);
         } else {
-            int randomSize = r.nextInt(this.bppConfig.getClauseNumber() - 1) + 1;
+            int randomSize = r.nextInt(this.bppConfig.getClauseNumber() - this.bppConfig.getMinSize() + 1 ) + this.bppConfig.getMinSize();
 
             this.fillRandomFormula(randomSize, r);
         }
@@ -355,7 +355,7 @@ public class RandomFormulaGenerator {
         return successCounter;
     }
 
-    private TestingResult testFormula(){
+    private TestingResult testFormula(Double lastRatio, Formula lastFormula, Integer lastFailingElement){
         TestingResult testingResult;
 
         boolean isValid = false;
@@ -462,15 +462,17 @@ public class RandomFormulaGenerator {
             
         }
 
+        Double successRatio = (successCounter * 1.0 / data.size() * 1.0) * 1.0;
+
         System.out.println("Formula: ");
         System.out.println(this.generatedFormula.toExtString());
         System.out.println("Data size: " + data.size());
         System.out.println("Matched records: " + successCounter);
         System.out.println("Bankrupt matched: " + bankruptMatched + " / " + bankrupt);
         System.out.println("Not bankrupt matched: " + notBankruptMatched + " / " + notBankrupt);
-        System.out.println("Success ratio: " + (successCounter * 1.0 / data.size() * 1.0) * 1.0);
+        System.out.println("Success ratio: " + successRatio);
 
-        if ((successCounter * 1.0 / data.size() * 1.0) * 1.0 >= this.bppConfig.getFormulaToleranceThreshold()){
+        if (successRatio >= this.bppConfig.getFormulaToleranceThreshold()){
             isValid = true;
         }
 
@@ -494,7 +496,13 @@ public class RandomFormulaGenerator {
             }
         }
 
-        testingResult = new TestingResult(isValid, failingElement);
+        if (!this.bppConfig.isHardReset() && lastRatio != null && lastFormula != null && lastFailingElement != null && lastRatio > successRatio){
+            successRatio = lastRatio;
+            this.generatedFormula = lastFormula;
+            failingElement = lastFailingElement;
+        }
+
+        testingResult = new TestingResult(isValid, failingElement, successRatio, this.generatedFormula);
         return testingResult;
     }
 

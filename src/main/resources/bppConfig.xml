@@ -9,5 +9,6 @@
     <elementToleranceThreshold>0.9</elementToleranceThreshold>
     <fixedSize>0</fixedSize>
     <minLength>3</minLength>
+    <minSize>10</minSize>
     <clauseFixAttempts>10</clauseFixAttempts>
 </bppConfig>
