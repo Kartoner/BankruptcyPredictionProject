@@ -25,7 +25,8 @@ public class BPPConfig {
      boolean fixedSize, 
      int minLength,
      int minSize,
-     int clauseFixAttempts)
+     int clauseFixAttempts,
+     int testClauseFixAttempts)
      throws JAXBException{
         this.clauseLength = clauseLength;
         this.clauseNumber = clauseNumber;
@@ -37,6 +38,7 @@ public class BPPConfig {
         this.minLength = minLength;
         this.minSize = minSize;
         this.clauseFixAttempts = clauseFixAttempts;
+        this.testClauseFixAttempts = testClauseFixAttempts;
     }
 
     public static BPPConfig getInstance() throws JAXBException {
@@ -83,6 +85,9 @@ public class BPPConfig {
     @XmlElement(name = "clauseFixAttempts")
     private int clauseFixAttempts;
 
+    @XmlElement(name = "testClauseFixAttempts")
+    private int testClauseFixAttempts;
+
     public int getClauseLength(){
         return this.clauseLength;
     }
@@ -127,6 +132,10 @@ public class BPPConfig {
         return this.clauseFixAttempts;
     }
 
+    public int getTestClauseFixAttempts() {
+        return this.testClauseFixAttempts;
+    }
+
     @Override
     public String toString(){
         return "Length of a single clause: " + this.clauseLength + "\n"
@@ -139,6 +148,7 @@ public class BPPConfig {
         + "Fixed size of formula: " + this.fixedSize + "\n"
         + "Minimal size of a single clause: " + this.minLength + "\n"
         + "Minimal size of a formula: " + this.minSize + "\n"
-        + "Number of attempts for fixing a clause: " + this.clauseFixAttempts;
+        + "Number of attempts for fixing a clause: " + this.clauseFixAttempts + "\n"
+        + "Number of attempts for fixing a clause in tested formula: " + this.testClauseFixAttempts;
     }
 }

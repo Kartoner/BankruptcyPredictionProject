@@ -75,7 +75,7 @@ public class RandomFormulaGenerator {
         System.out.println("Iteration no.: " + failCounter);
         generateNewFormula();
 
-        TestingResult testingResult = testFormula(null, null, null);
+        TestingResult testingResult = testFormula(null, null, null, 0, false);
 
         if (!testingResult.isValid()){
             failCounter++;
@@ -83,13 +83,22 @@ public class RandomFormulaGenerator {
             while (failCounter < this.bppConfig.getNumberOfIterations()){
                 System.out.println("Iteration no.: " + failCounter);
 
+                int clauseFailCounter = testingResult.getFailCounter();
+                boolean clauseReplaced = false;
+
                 if (this.bppConfig.isHardReset()){
                     generateNewFormula();
                 } else {
-                    fixFormula(testingResult.getFailingElement());
+                    if (clauseFailCounter < this.bppConfig.getTestClauseFixAttempts()){
+                        fixFormula(testingResult.getFailingElement());
+                    } else {
+                        replaceElement(testingResult.getFailingElement());
+                        clauseFailCounter = 0;
+                        clauseReplaced = true;
+                    }
                 }
 
-                testingResult = this.testFormula(testingResult.getSuccessRatio(), testingResult.getFormula(), testingResult.getFailingElement());
+                testingResult = this.testFormula(testingResult.getSuccessRatio(), testingResult.getFormula(), testingResult.getFailingElement(), clauseFailCounter, clauseReplaced);
 
                 if (testingResult.isValid()){
                     return Boolean.TRUE;
@@ -164,6 +173,30 @@ public class RandomFormulaGenerator {
 
                     this.generatedFormula.attach(getValidElement(randomClause, r));
                 }
+            }
+        }
+    }
+
+    private void replaceElement(int index) throws JAXBException {
+        Random r = new Random();
+
+        if (this.bppConfig.isFixedLength()) {
+            if (this.bppConfig.getClauseLength() == 1){
+                this.generatedFormula.getElements().set(index, getValidElement(this.getRandomLiteral(r), r));
+            } else {
+                Clause randomClause = fillRandomClause(this.bppConfig.getClauseLength(), r);
+
+                this.generatedFormula.getElements().set(index, getValidElement(randomClause, r));
+            }
+        } else {
+            int randomLength = r.nextInt(this.bppConfig.getClauseLength() - this.bppConfig.getMinLength() + 1) + this.bppConfig.getMinLength();
+
+            if (randomLength == 1){
+                this.generatedFormula.getElements().set(index, getValidElement(this.getRandomLiteral(r), r));
+            } else {
+                Clause randomClause = fillRandomClause(randomLength, r);
+
+                this.generatedFormula.getElements().set(index, getValidElement(randomClause, r));
             }
         }
     }
@@ -251,7 +284,7 @@ public class RandomFormulaGenerator {
             successCounter += validateClause((Clause) randomElement);
         }
 
-        double successPercentage = (successCounter * 1.0 / (this.formulaRepo.getFormulas(true).size() + this.formulaRepo.getFormulas(false).size()) * 1.0) * 1.0;
+        double successPercentage = (successCounter * 1.0 / (this.formulaRepo.getFormulas(true).size()) * 1.0) * 1.0;
 
         
         return successPercentage >= BPPConfig.getInstance().getElementToleranceThreshold();
@@ -261,7 +294,6 @@ public class RandomFormulaGenerator {
         int successCounter = 0;
 
         successCounter += validateLiteralWithSet(randomLiteral, this.formulaRepo.getFormulas(true), true);
-        successCounter += validateLiteralWithSet(randomLiteral, this.formulaRepo.getFormulas(false), false);
 
         return successCounter;
     }
@@ -275,8 +307,7 @@ public class RandomFormulaGenerator {
                     Literal literal = (Literal) element;
 
                     if (literal.getDescription().equals(randomLiteral.getDescription())
-                    && (((literal.getIsNegative() == randomLiteral.getIsNegative()) && isSat)
-                     || ((literal.getIsNegative() != randomLiteral.getIsNegative()) && !isSat))){
+                    && ((literal.getIsNegative() == randomLiteral.getIsNegative()) && isSat)){
                         successCounter++;
                         break;
                     }
@@ -286,8 +317,7 @@ public class RandomFormulaGenerator {
 
                     for (Literal literal : clause.getLiterals()){
                         if (literal.getDescription().equals(randomLiteral.getDescription())
-                        && (((literal.getIsNegative() == randomLiteral.getIsNegative()) && isSat)
-                         || ((literal.getIsNegative() != randomLiteral.getIsNegative()) && !isSat))){
+                        && ((literal.getIsNegative() == randomLiteral.getIsNegative()) && isSat)){
                             successCounter++;
                             isValid = true;
                             break;
@@ -307,7 +337,6 @@ public class RandomFormulaGenerator {
         int successCounter = 0;
 
         successCounter += validateClauseWithSet(randomClause, this.formulaRepo.getFormulas(true), true);
-        successCounter += validateClauseWithSet(randomClause, this.formulaRepo.getFormulas(false), false);
 
         return successCounter;
     }
@@ -323,8 +352,7 @@ public class RandomFormulaGenerator {
                         Literal literal = (Literal) element;
 
                         if (literal.getDescription().equals(randomLiteral.getDescription())
-                         && (((literal.getIsNegative() == randomLiteral.getIsNegative()) && isSat)
-                          || ((literal.getIsNegative() != randomLiteral.getIsNegative()) && !isSat))){
+                        && ((literal.getIsNegative() == randomLiteral.getIsNegative()) && isSat)){
                             successCounter++;
                             isValid = true;
                             break;
@@ -334,8 +362,7 @@ public class RandomFormulaGenerator {
 
                         for (Literal literal : clause.getLiterals()){
                             if (literal.getDescription().equals(randomLiteral.getDescription())
-                            && (((literal.getIsNegative() == randomLiteral.getIsNegative()) && isSat)
-                             || ((literal.getIsNegative() != randomLiteral.getIsNegative()) && !isSat))){
+                            && ((literal.getIsNegative() == randomLiteral.getIsNegative()) && isSat)){
                                 successCounter++;
                                 isValid = true;
                                 break;
@@ -355,7 +382,7 @@ public class RandomFormulaGenerator {
         return successCounter;
     }
 
-    private TestingResult testFormula(Double lastRatio, Formula lastFormula, Integer lastFailingElement){
+    private TestingResult testFormula(Double lastRatio, Formula lastFormula, Integer lastFailingElement, int lastFailCounter, boolean clauseReplaced){
         TestingResult testingResult;
 
         boolean isValid = false;
@@ -496,13 +523,19 @@ public class RandomFormulaGenerator {
             }
         }
 
-        if (!this.bppConfig.isHardReset() && lastRatio != null && lastFormula != null && lastFailingElement != null && lastRatio > successRatio){
+        if (!this.bppConfig.isHardReset() && lastRatio != null && lastFormula != null && lastFailingElement != null && !clauseReplaced && lastRatio > successRatio){
             successRatio = lastRatio;
             this.generatedFormula = lastFormula;
             failingElement = lastFailingElement;
         }
 
-        testingResult = new TestingResult(isValid, failingElement, successRatio, this.generatedFormula);
+        int failCounter = 0;
+
+        if (lastFailingElement != null && lastFailingElement == failingElement){
+            failCounter = lastFailCounter + 1;
+        }
+
+        testingResult = new TestingResult(isValid, failingElement, successRatio, this.generatedFormula, failCounter);
         return testingResult;
     }
 

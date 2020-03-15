@@ -10,11 +10,14 @@ public class TestingResult {
 
     private Formula formula;
 
-    public TestingResult(boolean valid, Integer failingElement, Double successRatio, Formula formula){
+    private int failCounter;
+
+    public TestingResult(boolean valid, Integer failingElement, Double successRatio, Formula formula, int failCounter){
         this.valid = valid;
         this.failingElement = failingElement;
         this.successRatio = successRatio;
         this.formula = formula;
+        this.failCounter = failCounter;
     }
 
     public boolean isValid(){
@@ -47,5 +50,13 @@ public class TestingResult {
 
     public void setFormula(Formula formula) {
         this.formula = formula;
+    }
+
+    public int getFailCounter() {
+        return this.failCounter;
+    }
+
+    public void setFailCounter(int failCounter) {
+        this.failCounter = failCounter;
     }
 }
