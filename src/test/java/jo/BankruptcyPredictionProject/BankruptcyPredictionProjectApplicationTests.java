@@ -64,6 +64,6 @@ class BankruptcyPredictionProjectApplicationTests {
 		formulaRepo.loadData();
 		RandomFormulaGenerator RFG = RandomFormulaGenerator.getInstance();
 		RFG.setTestDataFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\test.arff");
-		RFG.tryGenerateSetOfRandomFormulas(10);
+		RFG.tryGenerateSetOfRandomFormulas(1200);
 	}
 }

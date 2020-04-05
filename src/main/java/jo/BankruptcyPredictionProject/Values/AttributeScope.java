@@ -21,7 +21,25 @@ public class AttributeScope {
         if (this.rangeTo != null && value > this.rangeTo){
             return Boolean.FALSE;
         }
+
         return Boolean.TRUE;
+    }
+
+    public Boolean isApplicable(AttributeScope scope){
+        if (scope == null){
+            return Boolean.FALSE;
+        }
+        if (!this.attrName.equals(scope.attrName)){
+            return Boolean.FALSE;
+        }
+        if (this.equals(scope)){
+            return Boolean.TRUE;
+        }
+        if (isApplicable(scope.getRangeFrom()) || isApplicable(scope.getRangeTo())){
+            return Boolean.TRUE;
+        }
+
+        return Boolean.FALSE;
     }
 
     public String getAttrName(){
@@ -46,6 +64,14 @@ public class AttributeScope {
 
     public void setRangeTo(Double rangeTo){
         this.rangeTo = rangeTo;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        AttributeScope scope = (AttributeScope) obj;
+        return this.attrName.equals(scope.getAttrName())
+         && this.rangeFrom == scope.getRangeFrom()
+         && this.rangeTo == scope.getRangeTo();
     }
 
     @Override

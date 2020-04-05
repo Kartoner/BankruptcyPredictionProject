@@ -89,7 +89,7 @@ public class RandomFormulaGenerator {
                 if (this.bppConfig.isHardReset()){
                     generateNewFormula();
                 } else {
-                    if (clauseFailCounter < this.bppConfig.getTestClauseFixAttempts()){
+                    if (clauseFailCounter < this.bppConfig.getTestClauseFixAttempts() /** testingResult.getFormula().getElements().get(testingResult.getFailingElement()).getLength()*/){
                         fixFormula(testingResult.getFailingElement());
                     } else {
                         replaceElement(testingResult.getFailingElement());
@@ -306,7 +306,7 @@ public class RandomFormulaGenerator {
                 if (element instanceof Literal){
                     Literal literal = (Literal) element;
 
-                    if (literal.getDescription().equals(randomLiteral.getDescription())
+                    if (randomLiteral.getScope().isApplicable(literal.getScope())
                     && ((literal.getIsNegative() == randomLiteral.getIsNegative()) && isSat)){
                         successCounter++;
                         break;
@@ -316,7 +316,7 @@ public class RandomFormulaGenerator {
                     boolean isValid = false;
 
                     for (Literal literal : clause.getLiterals()){
-                        if (literal.getDescription().equals(randomLiteral.getDescription())
+                        if (randomLiteral.getScope().isApplicable(literal.getScope())
                         && ((literal.getIsNegative() == randomLiteral.getIsNegative()) && isSat)){
                             successCounter++;
                             isValid = true;
@@ -351,7 +351,7 @@ public class RandomFormulaGenerator {
                     if (element instanceof Literal){
                         Literal literal = (Literal) element;
 
-                        if (literal.getDescription().equals(randomLiteral.getDescription())
+                        if (randomLiteral.getScope().isApplicable(literal.getScope())
                         && ((literal.getIsNegative() == randomLiteral.getIsNegative()) && isSat)){
                             successCounter++;
                             isValid = true;
@@ -361,7 +361,7 @@ public class RandomFormulaGenerator {
                         Clause clause = (Clause) element;
 
                         for (Literal literal : clause.getLiterals()){
-                            if (literal.getDescription().equals(randomLiteral.getDescription())
+                            if (randomLiteral.getScope().isApplicable(literal.getScope())
                             && ((literal.getIsNegative() == randomLiteral.getIsNegative()) && isSat)){
                                 successCounter++;
                                 isValid = true;

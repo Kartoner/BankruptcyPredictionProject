@@ -64,5 +64,10 @@ public class Literal implements FormulaElement {
             return "~" + description;
         }
     }
+
+    @Override
+    public int getLength(){
+        return 1;
+    }
     
 }

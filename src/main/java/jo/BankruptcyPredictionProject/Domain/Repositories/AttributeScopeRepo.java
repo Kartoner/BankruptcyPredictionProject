@@ -87,21 +87,22 @@ public class AttributeScopeRepo {
         System.out.println("Done reading from file: " + scopesFilePath + ". Loaded scopes: " + loadedScopes);
     }
 
-    public AttributeScope getApplicableScope(String attrName, Double value){
+    public List<AttributeScope> getAllApplicableScopes(String attrName, Double value){
+        List<AttributeScope> applicableScopes = new ArrayList<>();
         if (value == null){
-            return null;
+            return applicableScopes;
         }
         if (this.scopes.containsKey(attrName)){
             List<AttributeScope> scopesList = this.scopes.get(attrName);
 
             for (AttributeScope scope : scopesList){
                 if (scope.isApplicable(value)){
-                    return scope;
+                    applicableScopes.add(scope);
                 }
             }
         }
 
-        return null;
+        return applicableScopes;
     }
 
     public boolean isScopeForAttribute(String attrName){

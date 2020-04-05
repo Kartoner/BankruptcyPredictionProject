@@ -55,5 +55,10 @@ public class Clause implements FormulaElement{
         
         return result;
     }
+
+    @Override
+    public int getLength(){
+        return this.literals.size();
+    }
     
 }
