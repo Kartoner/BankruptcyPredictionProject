@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jo.BankruptcyPredictionProject.Utility.BPPLogger;
 import jo.BankruptcyPredictionProject.Values.AttributeScope;
 
 public class AttributeScopeRepo {
@@ -77,14 +78,14 @@ public class AttributeScopeRepo {
                 }
             }
         } catch (FileNotFoundException e) {
-            System.out.println("File: " + scopesFilePath + " not found!");
+            BPPLogger.log("File: " + scopesFilePath + " not found!");
             e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("Reading from file: " + scopesFilePath + " failed!");
+            BPPLogger.log("Reading from file: " + scopesFilePath + " failed!");
             e.printStackTrace();
         }
 
-        System.out.println("Done reading from file: " + scopesFilePath + ". Loaded scopes: " + loadedScopes);
+        BPPLogger.log("Done reading from file: " + scopesFilePath + ". Loaded scopes: " + loadedScopes);
     }
 
     public List<AttributeScope> getAllApplicableScopes(String attrName, Double value){

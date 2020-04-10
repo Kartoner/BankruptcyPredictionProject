@@ -3,6 +3,8 @@ package jo.BankruptcyPredictionProject.Domain.Repositories;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+
+import jo.BankruptcyPredictionProject.Utility.BPPLogger;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader.ArffReader;
@@ -40,11 +42,11 @@ public class ArffRepo {
             }
 
         } catch (Exception e) {
-            System.out.println("Reading from arff file: " + this.filePath + " failed!");
+            BPPLogger.log("Reading from arff file: " + this.filePath + " failed!");
             e.printStackTrace();
         }
 
-        System.out.println("Data from arff file loaded successfully! Number of loaded instances: " + data.numInstances());
+        BPPLogger.log("Data from arff file loaded successfully! Number of loaded instances: " + data.numInstances());
     }
 
     public String getFilePath(){

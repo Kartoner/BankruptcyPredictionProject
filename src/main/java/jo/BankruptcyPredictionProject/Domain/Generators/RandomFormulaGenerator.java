@@ -11,6 +11,7 @@ import javax.xml.bind.JAXBException;
 import jo.BankruptcyPredictionProject.Configuration.BPPConfig;
 import jo.BankruptcyPredictionProject.Domain.Repositories.ArffRepo;
 import jo.BankruptcyPredictionProject.Domain.Repositories.FormulaRepo;
+import jo.BankruptcyPredictionProject.Utility.BPPLogger;
 import jo.BankruptcyPredictionProject.Values.Clause;
 import jo.BankruptcyPredictionProject.Values.Formula;
 import jo.BankruptcyPredictionProject.Values.Literal;
@@ -50,17 +51,17 @@ public class RandomFormulaGenerator {
 
         int generatedFormulaCounter = 0;
         for (int i = 0; i < numOfFormulas; i++){
-            System.out.println("Formula no.: " + i);
+            BPPLogger.log("Formula no.: " + i);
             boolean generationResult = generateFormula();
 
             if (generationResult){
                 generatedFormulaCounter++;
                 this.formulaRepo.writeNewFormula(this.generatedFormula, null);
             }
-            System.out.println("---------------------------");
+            BPPLogger.log("---------------------------");
         }
 
-        System.out.println("Formulas generated: " + generatedFormulaCounter);
+        BPPLogger.log("Formulas generated: " + generatedFormulaCounter);
 
         this.arffRepo.setFilePath(oldPath);
         this.arffRepo.setData(oldData);
@@ -71,8 +72,8 @@ public class RandomFormulaGenerator {
         boolean isFormulaGenerated = Boolean.FALSE;
         int failCounter = 0;
 
-        System.out.println("Generating...");
-        System.out.println("Iteration no.: " + failCounter);
+        BPPLogger.log("Generating...");
+        BPPLogger.log("Iteration no.: " + failCounter);
         generateNewFormula();
 
         TestingResult testingResult = testFormula(null, null, null, 0, false);
@@ -81,7 +82,7 @@ public class RandomFormulaGenerator {
             failCounter++;
 
             while (failCounter < this.bppConfig.getNumberOfIterations()){
-                System.out.println("Iteration no.: " + failCounter);
+                BPPLogger.log("Iteration no.: " + failCounter);
 
                 int clauseFailCounter = testingResult.getFailCounter();
                 boolean clauseReplaced = false;
@@ -491,13 +492,14 @@ public class RandomFormulaGenerator {
 
         Double successRatio = (successCounter * 1.0 / data.size() * 1.0) * 1.0;
 
-        System.out.println("Formula: ");
-        System.out.println(this.generatedFormula.toExtString());
-        System.out.println("Data size: " + data.size());
-        System.out.println("Matched records: " + successCounter);
-        System.out.println("Bankrupt matched: " + bankruptMatched + " / " + bankrupt);
-        System.out.println("Not bankrupt matched: " + notBankruptMatched + " / " + notBankrupt);
-        System.out.println("Success ratio: " + successRatio);
+        BPPLogger.log("Formula: ");
+        BPPLogger.log(this.generatedFormula.toExtString());
+        BPPLogger.log("Formula length: " + this.generatedFormula.getFormulaSize());
+        BPPLogger.log("Data size: " + data.size());
+        BPPLogger.log("Matched records: " + successCounter);
+        BPPLogger.log("Bankrupt matched: " + bankruptMatched + " / " + bankrupt);
+        BPPLogger.log("Not bankrupt matched: " + notBankruptMatched + " / " + notBankrupt);
+        BPPLogger.log("Success ratio: " + successRatio);
 
         if (successRatio >= this.bppConfig.getFormulaToleranceThreshold()){
             isValid = true;

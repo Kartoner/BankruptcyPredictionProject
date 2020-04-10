@@ -10,6 +10,7 @@ import java.util.List;
 import jo.BankruptcyPredictionProject.Domain.Repositories.ArffRepo;
 import jo.BankruptcyPredictionProject.Domain.Repositories.AttributeScopeRepo;
 import jo.BankruptcyPredictionProject.Domain.Repositories.FormulaRepo;
+import jo.BankruptcyPredictionProject.Utility.BPPLogger;
 import jo.BankruptcyPredictionProject.Values.AttributeScope;
 import jo.BankruptcyPredictionProject.Values.Formula;
 import jo.BankruptcyPredictionProject.Values.Literal;
@@ -121,7 +122,7 @@ public class ArffParser {
         }
 
         if (flushToRepo) {
-            System.out.println("Number of written formulas: " + count);
+            BPPLogger.log("Number of written formulas: " + count);
             this.formulaRepo.loadData();
         }
     }
@@ -134,14 +135,14 @@ public class ArffParser {
             bw.flush();
             bw.close();
         } catch (FileNotFoundException e) {
-            System.out.println("File: " + this.outputFilePath + " not found!");
+            BPPLogger.log("File: " + this.outputFilePath + " not found!");
             e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("Writing to file: " + this.outputFilePath + " failed!");
+            BPPLogger.log("Writing to file: " + this.outputFilePath + " failed!");
             e.printStackTrace();
         }
 
-        System.out.println("Written new formula to file: " + this.outputFilePath);
+        BPPLogger.log("Written new formula to file: " + this.outputFilePath);
     }
 
     public List<Formula> getParsedFormulas() {

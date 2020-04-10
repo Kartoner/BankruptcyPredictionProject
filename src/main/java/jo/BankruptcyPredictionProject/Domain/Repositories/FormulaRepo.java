@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jo.BankruptcyPredictionProject.Utility.BPPLogger;
 import jo.BankruptcyPredictionProject.Values.AttributeScope;
 import jo.BankruptcyPredictionProject.Values.Clause;
 import jo.BankruptcyPredictionProject.Values.Formula;
@@ -98,16 +99,16 @@ public class FormulaRepo {
             bw.flush();
             bw.close();
         } catch (FileNotFoundException e) {
-            System.out.println("File: " + filePath + " not found!");
+            BPPLogger.log("File: " + filePath + " not found!");
             e.printStackTrace();
             return false;
         } catch (IOException e) {
-            System.out.println("Writing to file: " + filePath + " failed!");
+            BPPLogger.log("Writing to file: " + filePath + " failed!");
             e.printStackTrace();
             return false;
         }
 
-        System.out.println("Written new formula to file: " + filePath);
+        BPPLogger.log("Written new formula to file: " + filePath);
         return true;
     }
 
@@ -119,16 +120,16 @@ public class FormulaRepo {
                 bw.flush();
                 bw.close();
             } catch (FileNotFoundException e) {
-                System.out.println("File: " + this.randomMatchingRulesFilePath + " not found!");
+                BPPLogger.log("File: " + this.randomMatchingRulesFilePath + " not found!");
                 e.printStackTrace();
                 return false;
             } catch (IOException e) {
-                System.out.println("Writing to file: " + this.randomMatchingRulesFilePath + " failed!");
+                BPPLogger.log("Writing to file: " + this.randomMatchingRulesFilePath + " failed!");
                 e.printStackTrace();
                 return false;
             }
 
-            System.out.println("Written new formula to file: " + this.randomMatchingRulesFilePath);
+            BPPLogger.log("Written new formula to file: " + this.randomMatchingRulesFilePath);
             return true;
         }
 
@@ -229,14 +230,14 @@ public class FormulaRepo {
                 }
             }
         } catch (FileNotFoundException e) {
-            System.out.println("File: " + formulasFilePath + " not found!");
+            BPPLogger.log("File: " + formulasFilePath + " not found!");
             e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("Reading from file: " + formulasFilePath + " failed!");
+            BPPLogger.log("Reading from file: " + formulasFilePath + " failed!");
             e.printStackTrace();
         }
 
-        System.out.println("Done reading from file: " + formulasFilePath + ". Loaded formulas: " + loadedFormulas);
+        BPPLogger.log("Done reading from file: " + formulasFilePath + ". Loaded formulas: " + loadedFormulas);
     }
 
     private void readMatchingRulesFile() {
@@ -259,14 +260,14 @@ public class FormulaRepo {
                 }
             }
         } catch (FileNotFoundException e) {
-            System.out.println("File: " + this.randomMatchingRulesFilePath + " not found!");
+            BPPLogger.log("File: " + this.randomMatchingRulesFilePath + " not found!");
             e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("Reading from file: " + this.randomMatchingRulesFilePath + " failed!");
+            BPPLogger.log("Reading from file: " + this.randomMatchingRulesFilePath + " failed!");
             e.printStackTrace();
         }
 
-        System.out.println("Done reading from file: " + this.randomMatchingRulesFilePath + ". Loaded rules: " + loadedRules);
+        BPPLogger.log("Done reading from file: " + this.randomMatchingRulesFilePath + ". Loaded rules: " + loadedRules);
     }
 
     private FormulaElement processLine(String line){
