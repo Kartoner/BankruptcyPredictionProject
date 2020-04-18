@@ -15,11 +15,12 @@ public class ArffRepo {
     private String filePath;
     private Instances data;
 
-    private ArffRepo() {}
+    private ArffRepo() {
+    }
 
     public static ArffRepo getInstance() {
         if (instance == null) {
-            instance =  new ArffRepo();
+            instance = new ArffRepo();
         }
 
         return instance;
@@ -32,12 +33,12 @@ public class ArffRepo {
             arff = new ArffReader(reader, 1000);
             this.data = arff.getStructure();
 
-            if (isTest){
+            if (isTest) {
                 this.data.setClassIndex(data.numAttributes() - 1);
             }
 
             Instance inst;
-            while((inst = arff.readInstance(this.data)) != null){
+            while ((inst = arff.readInstance(this.data)) != null) {
                 this.data.add(inst);
             }
 
@@ -49,19 +50,19 @@ public class ArffRepo {
         BPPLogger.log("Data from arff file loaded successfully! Number of loaded instances: " + data.numInstances());
     }
 
-    public String getFilePath(){
+    public String getFilePath() {
         return filePath;
     }
 
-    public void setFilePath(String filePath){
+    public void setFilePath(String filePath) {
         this.filePath = filePath;
     }
 
-    public Instances getData(){
+    public Instances getData() {
         return data;
     }
 
-    public void setData(Instances data){
+    public void setData(Instances data) {
         this.data = data;
     }
 }

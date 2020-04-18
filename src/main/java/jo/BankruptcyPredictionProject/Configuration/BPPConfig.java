@@ -14,20 +14,12 @@ public class BPPConfig {
 
     private static final String configFilePath = "./src/main/resources/bppConfig.xml";
 
-    private BPPConfig() throws JAXBException {}
+    private BPPConfig() throws JAXBException {
+    }
 
-    private BPPConfig(int clauseLength, 
-     int clauseNumber, 
-     int numberOfIterations,
-     boolean fixedLength, 
-     double formulaToleranceThreshold,
-     double elementToleranceThreshold,
-     boolean fixedSize, 
-     int minLength,
-     int minSize,
-     int clauseFixAttempts,
-     int testClauseFixAttempts)
-     throws JAXBException{
+    private BPPConfig(int clauseLength, int clauseNumber, int numberOfIterations, boolean fixedLength,
+            double formulaToleranceThreshold, double elementToleranceThreshold, boolean fixedSize, int minLength,
+            int minSize, int clauseFixAttempts, int testClauseFixAttempts) throws JAXBException {
         this.clauseLength = clauseLength;
         this.clauseNumber = clauseNumber;
         this.numberOfIterations = numberOfIterations;
@@ -42,7 +34,7 @@ public class BPPConfig {
     }
 
     public static BPPConfig getInstance() throws JAXBException {
-        if (instance == null){
+        if (instance == null) {
             File file = new File(configFilePath);
             JAXBContext jaxbContext = JAXBContext.newInstance(BPPConfig.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
@@ -88,15 +80,15 @@ public class BPPConfig {
     @XmlElement(name = "testClauseFixAttempts")
     private int testClauseFixAttempts;
 
-    public int getClauseLength(){
+    public int getClauseLength() {
         return this.clauseLength;
     }
 
-    public int getClauseNumber(){
+    public int getClauseNumber() {
         return this.clauseNumber;
     }
 
-    public int getNumberOfIterations(){
+    public int getNumberOfIterations() {
         return this.numberOfIterations;
     }
 
@@ -137,18 +129,15 @@ public class BPPConfig {
     }
 
     @Override
-    public String toString(){
-        return "Length of a single clause: " + this.clauseLength + "\n"
-        + "Number of clauses: " + this.clauseNumber + "\n"
-        + "Number of iterations: " + this.numberOfIterations + "\n"
-        + "Fixed length of clauses: " + this.fixedLength + "\n"
-        + "Hard reset after failure: " + this.hardReset + "\n"
-        + "Formula tolerance threshold: " + this.formulaToleranceThreshold + "\n"
-        + "Element tolerance threshold: " + this.elementToleranceThreshold + "\n"
-        + "Fixed size of formula: " + this.fixedSize + "\n"
-        + "Minimal size of a single clause: " + this.minLength + "\n"
-        + "Minimal size of a formula: " + this.minSize + "\n"
-        + "Number of attempts for fixing a clause: " + this.clauseFixAttempts + "\n"
-        + "Number of attempts for fixing a clause in tested formula: " + this.testClauseFixAttempts;
+    public String toString() {
+        return "Length of a single clause: " + this.clauseLength + "\n" + "Number of clauses: " + this.clauseNumber
+                + "\n" + "Number of iterations: " + this.numberOfIterations + "\n" + "Fixed length of clauses: "
+                + this.fixedLength + "\n" + "Hard reset after failure: " + this.hardReset + "\n"
+                + "Formula tolerance threshold: " + this.formulaToleranceThreshold + "\n"
+                + "Element tolerance threshold: " + this.elementToleranceThreshold + "\n" + "Fixed size of formula: "
+                + this.fixedSize + "\n" + "Minimal size of a single clause: " + this.minLength + "\n"
+                + "Minimal size of a formula: " + this.minSize + "\n" + "Number of attempts for fixing a clause: "
+                + this.clauseFixAttempts + "\n" + "Number of attempts for fixing a clause in tested formula: "
+                + this.testClauseFixAttempts;
     }
 }

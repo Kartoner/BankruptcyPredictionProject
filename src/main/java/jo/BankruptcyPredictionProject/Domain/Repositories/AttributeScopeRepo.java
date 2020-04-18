@@ -19,19 +19,19 @@ public class AttributeScopeRepo {
 
     private Map<String, List<AttributeScope>> scopes;
 
-    private AttributeScopeRepo(){
+    private AttributeScopeRepo() {
         this.scopes = new HashMap<>();
     }
 
-    public static AttributeScopeRepo getInstance(){
-        if (instance == null){
+    public static AttributeScopeRepo getInstance() {
+        if (instance == null) {
             instance = new AttributeScopeRepo();
         }
 
         return instance;
     }
 
-    public void loadData(){
+    public void loadData() {
         int loadedScopes = 0;
 
         try (BufferedReader br = new BufferedReader(new FileReader(scopesFilePath))) {
@@ -42,29 +42,29 @@ public class AttributeScopeRepo {
             Double rangeFrom;
             Double rangeTo;
 
-            while (line != null){
+            while (line != null) {
                 line = br.readLine();
 
-                if (line != null){
+                if (line != null) {
                     String[] lineSplit = line.split(" ");
 
                     attrName = lineSplit[0];
 
-                    if (lineSplit[1].equals("NA")){
+                    if (lineSplit[1].equals("NA")) {
                         rangeFrom = null;
                     } else {
                         rangeFrom = Double.valueOf(lineSplit[1]);
                     }
 
-                    if (lineSplit[2].equals("NA")){
+                    if (lineSplit[2].equals("NA")) {
                         rangeTo = null;
                     } else {
-                        rangeTo = Double.valueOf(lineSplit[2]);                        
+                        rangeTo = Double.valueOf(lineSplit[2]);
                     }
 
                     attrScope = new AttributeScope(attrName, rangeFrom, rangeTo);
 
-                    if (!this.scopes.containsKey(attrName)){
+                    if (!this.scopes.containsKey(attrName)) {
                         List<AttributeScope> scopeList = new ArrayList<>();
                         scopeList.add(attrScope);
                         this.scopes.put(attrName, scopeList);
@@ -88,16 +88,16 @@ public class AttributeScopeRepo {
         BPPLogger.log("Done reading from file: " + scopesFilePath + ". Loaded scopes: " + loadedScopes);
     }
 
-    public List<AttributeScope> getAllApplicableScopes(String attrName, Double value){
+    public List<AttributeScope> getAllApplicableScopes(String attrName, Double value) {
         List<AttributeScope> applicableScopes = new ArrayList<>();
-        if (value == null){
+        if (value == null) {
             return applicableScopes;
         }
-        if (this.scopes.containsKey(attrName)){
+        if (this.scopes.containsKey(attrName)) {
             List<AttributeScope> scopesList = this.scopes.get(attrName);
 
-            for (AttributeScope scope : scopesList){
-                if (scope.isApplicable(value)){
+            for (AttributeScope scope : scopesList) {
+                if (scope.isApplicable(value)) {
                     applicableScopes.add(scope);
                 }
             }
@@ -106,14 +106,14 @@ public class AttributeScopeRepo {
         return applicableScopes;
     }
 
-    public boolean isScopeForAttribute(String attrName){
+    public boolean isScopeForAttribute(String attrName) {
         return this.scopes.containsKey(attrName);
     }
 
-    public AttributeScope getScopeByDescription(String description){
-        for (Map.Entry<String, List<AttributeScope>> entry : this.scopes.entrySet()){
-            for (AttributeScope scope : entry.getValue()){
-                if (scope.toString().equals(description)){
+    public AttributeScope getScopeByDescription(String description) {
+        for (Map.Entry<String, List<AttributeScope>> entry : this.scopes.entrySet()) {
+            for (AttributeScope scope : entry.getValue()) {
+                if (scope.toString().equals(description)) {
                     return scope;
                 }
             }

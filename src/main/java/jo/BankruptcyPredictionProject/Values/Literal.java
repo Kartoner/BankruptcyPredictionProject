@@ -23,7 +23,7 @@ public class Literal implements FormulaElement {
         this.symbol = symbol;
     }
 
-    public String getDescription(){
+    public String getDescription() {
         return description;
     }
 
@@ -31,7 +31,7 @@ public class Literal implements FormulaElement {
         this.description = description;
     }
 
-    public boolean getIsNegative(){
+    public boolean getIsNegative() {
         return isNegative;
     }
 
@@ -39,17 +39,17 @@ public class Literal implements FormulaElement {
         this.isNegative = isNegative;
     }
 
-    public AttributeScope getScope(){
+    public AttributeScope getScope() {
         return scope;
     }
 
-    public void setScope(AttributeScope scope){
+    public void setScope(AttributeScope scope) {
         this.scope = scope;
     }
 
     @Override
     public String toString() {
-        if (!isNegative){
+        if (!isNegative) {
             return Integer.toString(this.symbol);
         } else {
             return "-" + this.symbol;
@@ -57,8 +57,8 @@ public class Literal implements FormulaElement {
     }
 
     @Override
-    public String toExtString(){
-        if (!isNegative){
+    public String toExtString() {
+        if (!isNegative) {
             return description;
         } else {
             return "~" + description;
@@ -66,8 +66,8 @@ public class Literal implements FormulaElement {
     }
 
     @Override
-    public int getLength(){
+    public int getLength() {
         return 1;
     }
-    
+
 }

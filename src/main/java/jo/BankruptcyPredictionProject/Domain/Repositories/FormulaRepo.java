@@ -53,15 +53,15 @@ public class FormulaRepo {
 
     public void loadData() {
         clear();
-        readFormulasFile(this.satFilePath);
-        readFormulasFile(this.unsatFilePath);
-        readFormulasFile(this.assessmentFilePath);
+        this.satFormulas = readFormulasFile(this.satFilePath);
+        this.unsatFormulas = readFormulasFile(this.unsatFilePath);
+        this.assessmentFormulas = readFormulasFile(this.assessmentFilePath);
         readMatchingRulesFile();
     }
 
     public void refreshAssessmentFormulas(){
         this.assessmentFormulas.clear();
-        readFormulasFile(this.assessmentFilePath);
+        this.assessmentFormulas = readFormulasFile(this.assessmentFilePath);
     }
 
     public void refreshMatchingRules(){
@@ -197,8 +197,9 @@ public class FormulaRepo {
         this.currentSymbol++;
     }
 
-    private void readFormulasFile(String formulasFilePath) {
+    public List<Formula> readFormulasFile(String formulasFilePath) {
         int loadedFormulas = 0;
+        List<Formula> formulas = new ArrayList<Formula>(); 
 
         try (BufferedReader br = new BufferedReader(new FileReader(formulasFilePath))) {
             String line = "";
@@ -212,11 +213,7 @@ public class FormulaRepo {
                     if (line.equals("---")) {
                         assignToNewFormula = true;
 
-                        if (formulasFilePath.equals(this.satFilePath)) {
-                            this.satFormulas.add(currentFormula);
-                        } else {
-                            this.unsatFormulas.add(currentFormula);
-                        }
+                        formulas.add(currentFormula);
 
                         loadedFormulas++;
                     } else {
@@ -238,6 +235,7 @@ public class FormulaRepo {
         }
 
         BPPLogger.log("Done reading from file: " + formulasFilePath + ". Loaded formulas: " + loadedFormulas);
+        return formulas;
     }
 
     private void readMatchingRulesFile() {

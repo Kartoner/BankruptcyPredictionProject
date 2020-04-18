@@ -18,18 +18,18 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class BankruptcyPredictionProjectApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(BankruptcyPredictionProjectApplication.class, args);
-		ISolver solver = SolverFactory.newDefault();
+    public static void main(String[] args) {
+        SpringApplication.run(BankruptcyPredictionProjectApplication.class, args);
+        ISolver solver = SolverFactory.newDefault();
         solver.setTimeout(3600); // 1 hour timeout
         Reader reader = new DimacsReader(solver);
-        PrintWriter out = new PrintWriter(System.out,true);
-        // CNF filename is given on the command line 
+        PrintWriter out = new PrintWriter(System.out, true);
+        // CNF filename is given on the command line
         try {
             IProblem problem = reader.parseInstance(args[0]);
             if (problem.isSatisfiable()) {
                 System.out.println("Satisfiable !");
-                reader.decode(problem.model(),out);
+                reader.decode(problem.model(), out);
             } else {
                 System.out.println("Unsatisfiable !");
             }
@@ -42,8 +42,8 @@ public class BankruptcyPredictionProjectApplication {
         } catch (ContradictionException e) {
             System.out.println("Unsatisfiable (trivial)!");
         } catch (TimeoutException e) {
-            System.out.println("Timeout, sorry!");      
+            System.out.println("Timeout, sorry!");
         }
-	}
+    }
 
 }

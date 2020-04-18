@@ -43,30 +43,28 @@ class BankruptcyPredictionProjectApplicationTests {
 		System.out.println(bppConfig);
 	}
 
-	/*@Test
-	void readTestData(){
-		ArffRepo arffRepo = ArffRepo.getInstance();
-		arffRepo.setFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\sample.arff");
-		arffRepo.loadData(Boolean.TRUE);
-		FormulaRepo formulaRepo = FormulaRepo.getInstance();
-		formulaRepo.loadData();
-		ArffParser arffParser = ArffParser.getInstance();
-		arffParser.processAllRecords(Boolean.TRUE);
-	} */
+	/*
+	 * @Test void readTestData(){ ArffRepo arffRepo = ArffRepo.getInstance();
+	 * arffRepo.
+	 * setFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\sample.arff");
+	 * arffRepo.loadData(Boolean.TRUE); FormulaRepo formulaRepo =
+	 * FormulaRepo.getInstance(); formulaRepo.loadData(); ArffParser arffParser =
+	 * ArffParser.getInstance(); arffParser.processAllRecords(Boolean.TRUE); }
+	 */
 
 	@Test
-	void testLog(){
+	void testLog() {
 		BPPLogger.log("Test\nTest");
 		BPPLogger.log("Test2");
 	}
 
 	@Test
-	void testClearLog(){
+	void testClearLog() {
 		BPPLogger.clear();
 	}
 
 	@Test
-	void RFGTest() throws JAXBException {
+	void RFGSetGenerationTest() throws JAXBException {
 		BPPLogger.clear();
 		ArffRepo arffRepo = ArffRepo.getInstance();
 		arffRepo.setFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\sample.arff");
@@ -77,6 +75,21 @@ class BankruptcyPredictionProjectApplicationTests {
 		formulaRepo.loadData();
 		RandomFormulaGenerator RFG = RandomFormulaGenerator.getInstance();
 		RFG.setTestDataFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\test.arff");
-		RFG.tryGenerateSetOfRandomFormulas(2000);
+		RFG.tryGenerateSetOfRandomFormulas(500, Boolean.FALSE);
+	}
+
+	@Test
+	void RFGSingleFormulaTest() throws JAXBException {
+		BPPLogger.clear();
+		ArffRepo arffRepo = ArffRepo.getInstance();
+		arffRepo.setFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\sample.arff");
+		arffRepo.loadData(Boolean.TRUE);
+		AttributeScopeRepo scopeRepo = AttributeScopeRepo.getInstance();
+		scopeRepo.loadData();
+		FormulaRepo formulaRepo = FormulaRepo.getInstance();
+		formulaRepo.loadData();
+		RandomFormulaGenerator RFG = RandomFormulaGenerator.getInstance();
+		RFG.setTestDataFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\test.arff");
+		RFG.tryGenerateSetOfRandomFormulas(1, Boolean.TRUE);
 	}
 }

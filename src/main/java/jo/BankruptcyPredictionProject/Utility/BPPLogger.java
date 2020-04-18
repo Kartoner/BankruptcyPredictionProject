@@ -10,7 +10,7 @@ public class BPPLogger {
 
     private static final String logFilePath = "./src/main/resources/log.txt";
 
-    public static void log(String message){
+    public static void log(String message) {
         try {
             System.out.println(message);
             BufferedWriter bw = new BufferedWriter(new FileWriter(logFilePath, true));
@@ -27,7 +27,7 @@ public class BPPLogger {
         }
     }
 
-    public static void clear(){
+    public static void clear() {
         try {
             FileWriter fw = new FileWriter(logFilePath, false);
             fw.close();
