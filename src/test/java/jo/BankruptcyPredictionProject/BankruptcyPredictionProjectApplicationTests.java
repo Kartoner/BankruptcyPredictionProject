@@ -9,6 +9,7 @@ import jo.BankruptcyPredictionProject.Configuration.BPPConfig;
 import jo.BankruptcyPredictionProject.Domain.Generators.RandomFormulaGenerator;
 import jo.BankruptcyPredictionProject.Domain.Parsers.ArffParser;
 import jo.BankruptcyPredictionProject.Domain.Repositories.*;
+import jo.BankruptcyPredictionProject.Domain.Services.PredictionService;
 import jo.BankruptcyPredictionProject.Utility.BPPLogger;
 
 @SpringBootTest
@@ -91,5 +92,20 @@ class BankruptcyPredictionProjectApplicationTests {
 		RandomFormulaGenerator RFG = RandomFormulaGenerator.getInstance();
 		RFG.setTestDataFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\test.arff");
 		RFG.tryGenerateSetOfRandomFormulas(1, Boolean.TRUE);
+	}
+
+	@Test
+	void PredictionTest() throws JAXBException {
+		BPPLogger.clear();
+		ArffRepo arffRepo = ArffRepo.getInstance();
+		arffRepo.setFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\sample.arff");
+		arffRepo.loadData(Boolean.TRUE);
+		AttributeScopeRepo scopeRepo = AttributeScopeRepo.getInstance();
+		scopeRepo.loadData();
+		FormulaRepo formulaRepo = FormulaRepo.getInstance();
+		formulaRepo.refreshAssessmentFormulas();
+		PredictionService predictionService = PredictionService.getInstance();
+		predictionService.setDataFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\1year.arff");
+		predictionService.predict(true);
 	}
 }

@@ -28,6 +28,7 @@ public class RandomFormulaGenerator {
     private final ArffRepo arffRepo = ArffRepo.getInstance();
 
     private Formula generatedFormula;
+    private List<Formula> formulasFromFile;
     private String testDataFilePath;
 
     private final String inputFilePath = "./src/main/resources/inputFormula.txt";
@@ -35,6 +36,7 @@ public class RandomFormulaGenerator {
     private RandomFormulaGenerator() throws JAXBException {
         bppConfig = BPPConfig.getInstance();
         generatedFormula = new Formula();
+        formulasFromFile = new LinkedList<Formula>();
     }
 
     public static RandomFormulaGenerator getInstance() throws JAXBException {
@@ -54,7 +56,7 @@ public class RandomFormulaGenerator {
         int generatedFormulaCounter = 0;
         for (int i = 0; i < numOfFormulas; i++) {
             BPPLogger.log("Formula no.: " + i);
-            boolean generationResult = generateFormula(readFromFile);
+            boolean generationResult = generateFormula(readFromFile, i);
 
             if (generationResult) {
                 generatedFormulaCounter++;
@@ -70,14 +72,14 @@ public class RandomFormulaGenerator {
         this.formulaRepo.refreshAssessmentFormulas();
     }
 
-    public boolean generateFormula(boolean readFromFile) throws JAXBException {
+    public boolean generateFormula(boolean readFromFile, int formulaNo) throws JAXBException {
         boolean isFormulaGenerated = Boolean.FALSE;
         int failCounter = 0;
 
         BPPLogger.log("Generating...");
         BPPLogger.log("Iteration no.: " + failCounter);
         if (readFromFile) {
-            readFormulaFromFile();
+            readFormulaFromFile(formulaNo % this.formulasFromFile.size());
         } else {
             generateNewFormula();
         }
@@ -93,6 +95,8 @@ public class RandomFormulaGenerator {
                 int clauseFailCounter = testingResult.getFailCounter();
                 boolean clauseReplaced = false;
 
+                Random r = new Random();
+
                 if (this.bppConfig.isHardReset()) {
                     generateNewFormula();
                 } else {
@@ -100,7 +104,6 @@ public class RandomFormulaGenerator {
                                                                                        * testingResult.getFormula().getElements().get(testingResult.getFailingElement()).getLength()
                                                                                        */
                     ) {
-                        Random r = new Random();
                         if (r.nextBoolean()) {
                             if (testingResult.isAddOrRemove() != null && testingResult.isAddOrRemove()) {
                                 addLiteral(r, testingResult.getFailingElement());
@@ -114,10 +117,28 @@ public class RandomFormulaGenerator {
                         } else {
                             fixFormula(r, testingResult.getFailingElement());
                         }
+
+                        if (r.nextBoolean()) {
+                            if (testingResult.isAddOrRemove() != null && testingResult.isAddOrRemove()) {
+                                int randomSize = r
+                                        .nextInt(this.bppConfig.getClauseNumber() - this.bppConfig.getMinSize() + 1)
+                                        + this.bppConfig.getMinSize();
+
+                                this.fillRandomClause(randomSize, r);
+                            } else {
+                                int randomIndex = r.nextInt(this.generatedFormula.getFormulaSize());
+
+                                this.generatedFormula.getElements().remove(randomIndex);
+                            }
+                        }
                     } else {
-                        replaceElement(testingResult.getFailingElement());
-                        clauseFailCounter = 0;
-                        clauseReplaced = true;
+                        if (r.nextBoolean() && this.generatedFormula.getFormulaSize() > 1){
+                            this.generatedFormula.getElements().remove(testingResult.getFailingElement().intValue());
+                        } else {
+                            replaceElement(testingResult.getFailingElement());
+                            clauseFailCounter = 0;
+                            clauseReplaced = true;
+                        }   
                     }
                 }
 
@@ -137,8 +158,12 @@ public class RandomFormulaGenerator {
         return isFormulaGenerated;
     }
 
-    private void readFormulaFromFile() {
-        this.generatedFormula = this.formulaRepo.readFormulasFile(this.inputFilePath).get(0);
+    private void readFormulaFromFile(int index) {
+        this.generatedFormula = this.formulaRepo.readFormulasFile(this.inputFilePath).get(index);
+    }
+
+    private void readFormulasFromFile(){
+        this.formulasFromFile = this.formulaRepo.readFormulasFile(this.inputFilePath);
     }
 
     private void generateNewFormula() throws JAXBException {
