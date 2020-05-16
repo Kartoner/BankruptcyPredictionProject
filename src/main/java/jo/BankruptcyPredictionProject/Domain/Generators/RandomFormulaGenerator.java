@@ -162,10 +162,6 @@ public class RandomFormulaGenerator {
         this.generatedFormula = this.formulaRepo.readFormulasFile(this.inputFilePath).get(index);
     }
 
-    private void readFormulasFromFile(){
-        this.formulasFromFile = this.formulaRepo.readFormulasFile(this.inputFilePath);
-    }
-
     private void generateNewFormula() throws JAXBException {
         this.generatedFormula = new Formula();
         Random r = new Random();

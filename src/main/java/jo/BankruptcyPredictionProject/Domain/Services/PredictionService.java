@@ -13,6 +13,7 @@ import jo.BankruptcyPredictionProject.Utility.BPPLogger;
 import jo.BankruptcyPredictionProject.Values.Clause;
 import jo.BankruptcyPredictionProject.Values.Formula;
 import jo.BankruptcyPredictionProject.Values.Literal;
+import jo.BankruptcyPredictionProject.Values.PredictionResult;
 import jo.BankruptcyPredictionProject.Values.Interface.FormulaElement;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -46,19 +47,43 @@ public class PredictionService {
 
         int correctPredictions = 0;
         int incorrectPredictions = 0;
+        int bankruptCounter = 0;
+        int notBankruptCounter = 0;
+        int bankruptCorrect = 0;
+        int bankruptIncorrect = 0;
+        int notBankruptCorrect = 0;
+        int notBankruptIncorrect = 0;
 
         BPPLogger.log("---------------------------");
         BPPLogger.log("Prediction started");
         BPPLogger.log("Data size: " + this.arffRepo.getData().numInstances());
 
         for (int i = 0; i < this.arffRepo.getData().numInstances(); i++){
-            Boolean predictionCorrect = getPredictionForRecord(this.arffRepo.getData().get(i), isTest);
+            BPPLogger.log("Record No.: " + i);
+
+            PredictionResult predictionResult = getPredictionForRecord(this.arffRepo.getData().get(i), isTest);
             
-            if (predictionCorrect != null){
-                if (predictionCorrect){
+            if (predictionResult.isPredictionCorrect() != null){
+                if (predictionResult.isPredictionCorrect()){
                     correctPredictions++;
+
+                    if (predictionResult.getExpected()){
+                        bankruptCounter++;
+                        bankruptCorrect++;
+                    } else {
+                        notBankruptCounter++;
+                        notBankruptCorrect++;
+                    }
                 } else {
                     incorrectPredictions++;
+
+                    if (predictionResult.getExpected()){
+                        bankruptCounter++;
+                        bankruptIncorrect++;
+                    } else {
+                        notBankruptCounter++;
+                        notBankruptIncorrect++;
+                    }
                 }
             }
         }
@@ -66,8 +91,22 @@ public class PredictionService {
         BPPLogger.log("Finished!");
 
         if (isTest){
-            BPPLogger.log("Correct predictions: " + correctPredictions + " / " + this.arffRepo.getData().numInstances());
-            BPPLogger.log("Incorrect predictions: " + incorrectPredictions + " / " + this.arffRepo.getData().numInstances());
+            int dataSize = this.arffRepo.getData().numInstances();
+            double correctnessRatio = (correctPredictions * 1.0 / dataSize * 1.0) * 1.0;
+            double bankruptCorrectnessRatio = (bankruptCorrect * 1.0 / bankruptCounter * 1.0) * 1.0;
+            double notBankruptCorrectnessRatio = (notBankruptCorrect * 1.0 / notBankruptCounter * 1.0) * 1.0;
+            BPPLogger.log("Risk of bankruptcy:");
+            BPPLogger.log("Correct predictions: " + bankruptCorrect + " / " + bankruptCounter);
+            BPPLogger.log("Incorrect predictions: " + bankruptIncorrect + " / " + bankruptCounter);
+            BPPLogger.log("Correctness ratio: " + bankruptCorrectnessRatio);
+            BPPLogger.log("No risk of bankruptcy:");
+            BPPLogger.log("Correct predictions: " + notBankruptCorrect + " / " + notBankruptCounter);
+            BPPLogger.log("Incorrect predictions: " + notBankruptIncorrect + " / " + notBankruptCounter);
+            BPPLogger.log("Correctness ratio: " + notBankruptCorrectnessRatio);
+            BPPLogger.log("Overall:");
+            BPPLogger.log("Correct predictions: " + correctPredictions + " / " + dataSize);
+            BPPLogger.log("Incorrect predictions: " + incorrectPredictions + " / " + dataSize);
+            BPPLogger.log("Correctness ratio: " + correctnessRatio);
         }
 
         BPPLogger.log("---------------------------");
@@ -76,9 +115,15 @@ public class PredictionService {
         this.arffRepo.setData(oldData);
     }
 
-    private Boolean getPredictionForRecord(Instance record, boolean isTest){
+    private PredictionResult getPredictionForRecord(Instance record, boolean isTest) {
         Boolean predictionCorrect = null;
-        boolean recordClass = record.classValue() == 1.0 ? true : false;
+        Boolean expected = null;
+        Boolean received = null;
+
+        boolean recordClass = true;
+        if (isTest){
+            recordClass = record.classValue() == 1.0 ? true : false;
+        }
 
         List<Formula> assessmentFormulas = this.formulaRepo.getFormulas(null);
         List<Boolean> results = new ArrayList<Boolean>();
@@ -101,6 +146,32 @@ public class PredictionService {
             List<Boolean> result = new LinkedList<>();
 
             // Variables substitution
+            for (int j = 0; j < record.numAttributes(); j++) {
+                String attrName = record.attribute(j).name();
+                Double value = record.value(j);
+
+                for (int k = 0; k < assessmentFormula.getElements().size(); k++) {
+                    FormulaElement formulaElement = assessmentFormula.getElements().get(k);
+
+                    if (formulaElement instanceof Literal) {
+                        Literal literal = (Literal) formulaElement;
+                        if (literal.getScope() != null && literal.getScope().getAttrName().equals(attrName)
+                                && literal.getScope().isApplicable(value)) {
+                            predictionMatrix.get(k).set(0, Boolean.TRUE && !literal.getIsNegative());
+                        }
+                    } else if (formulaElement instanceof Clause) {
+                        Clause clause = (Clause) formulaElement;
+
+                        for (int l = 0; l < clause.getLiterals().size(); l++) {
+                            Literal literal = clause.getLiterals().get(l);
+                            if (literal.getScope() != null && literal.getScope().getAttrName().equals(attrName)
+                                    && literal.getScope().isApplicable(value)) {
+                                predictionMatrix.get(k).set(l, Boolean.TRUE && !literal.getIsNegative());
+                            }
+                        }
+                    }
+                }
+            }
 
             for (int j = 0; j < predictionMatrix.size(); j++) {
                 boolean evalSubResult = Boolean.FALSE;
@@ -122,8 +193,32 @@ public class PredictionService {
         }
 
         //Calculate end result
+        boolean endResult = true;
+        int votesBankrupt = 0;
+        int votesNotBankrupt = 0;
+        for (Boolean result : results){
+            if (result) {
+                votesBankrupt++;
+            } else {
+                votesNotBankrupt++;
+            }
+        }
 
-        return predictionCorrect;
+        if (votesBankrupt >= votesNotBankrupt){
+            endResult = true;
+            BPPLogger.log("Major risk of bankruptcy detected!");
+        } else {
+            endResult = false;
+            BPPLogger.log("No major risk of bankruptcy detected!");
+        }
+
+        if (isTest){
+            predictionCorrect = !(endResult ^ recordClass);
+            expected = recordClass;
+            received = endResult;
+        }
+
+        return new PredictionResult(predictionCorrect, expected, received);
     }
 
     public void setDataFilePath(String dataFilePath) {
