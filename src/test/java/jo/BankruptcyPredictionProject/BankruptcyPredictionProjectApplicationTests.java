@@ -105,7 +105,7 @@ class BankruptcyPredictionProjectApplicationTests {
 		FormulaRepo formulaRepo = FormulaRepo.getInstance();
 		formulaRepo.refreshAssessmentFormulas();
 		PredictionService predictionService = PredictionService.getInstance();
-		predictionService.setDataFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\3year.arff");
+		predictionService.setDataFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\5year.arff");
 		predictionService.predict(true);
 	}
 }

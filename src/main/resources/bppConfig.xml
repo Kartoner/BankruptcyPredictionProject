@@ -5,8 +5,9 @@
     <numberOfIterations>500</numberOfIterations>
     <fixedLength>0</fixedLength>
     <hardReset>0</hardReset>
-    <formulaToleranceThreshold>0.9</formulaToleranceThreshold>
+    <formulaToleranceThreshold>0.75</formulaToleranceThreshold>
     <elementToleranceThreshold>0.9</elementToleranceThreshold>
+    <elementValidationThreshold>0.9</elementValidationThreshold>
     <fixedSize>0</fixedSize>
     <minLength>5</minLength>
     <minSize>10</minSize>

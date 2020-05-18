@@ -18,14 +18,16 @@ public class BPPConfig {
     }
 
     private BPPConfig(int clauseLength, int clauseNumber, int numberOfIterations, boolean fixedLength,
-            double formulaToleranceThreshold, double elementToleranceThreshold, boolean fixedSize, int minLength,
-            int minSize, int clauseFixAttempts, int testClauseFixAttempts) throws JAXBException {
+            double formulaToleranceThreshold, double elementToleranceThreshold, double elementValidationThreshold,
+            boolean fixedSize, int minLength, int minSize, int clauseFixAttempts, int testClauseFixAttempts)
+            throws JAXBException {
         this.clauseLength = clauseLength;
         this.clauseNumber = clauseNumber;
         this.numberOfIterations = numberOfIterations;
         this.fixedLength = fixedLength;
         this.formulaToleranceThreshold = formulaToleranceThreshold;
         this.elementToleranceThreshold = elementToleranceThreshold;
+        this.elementValidationThreshold = elementValidationThreshold;
         this.fixedSize = fixedSize;
         this.minLength = minLength;
         this.minSize = minSize;
@@ -64,6 +66,9 @@ public class BPPConfig {
 
     @XmlElement(name = "elementToleranceThreshold")
     private double elementToleranceThreshold;
+
+    @XmlElement(name = "elementValidationThreshold")
+    private double elementValidationThreshold;
 
     @XmlElement(name = "fixedSize")
     private boolean fixedSize;
@@ -108,6 +113,10 @@ public class BPPConfig {
         return this.elementToleranceThreshold;
     }
 
+    public double getElementValidationThreshold() {
+        return elementValidationThreshold;
+    }
+
     public boolean isFixedSize() {
         return this.fixedSize;
     }
@@ -134,7 +143,8 @@ public class BPPConfig {
                 + "\n" + "Number of iterations: " + this.numberOfIterations + "\n" + "Fixed length of clauses: "
                 + this.fixedLength + "\n" + "Hard reset after failure: " + this.hardReset + "\n"
                 + "Formula tolerance threshold: " + this.formulaToleranceThreshold + "\n"
-                + "Element tolerance threshold: " + this.elementToleranceThreshold + "\n" + "Fixed size of formula: "
+                + "Element tolerance threshold: " + this.elementToleranceThreshold + "\n"
+                + "Element validation threshold: " + this.elementValidationThreshold + "\n" + "Fixed size of formula: "
                 + this.fixedSize + "\n" + "Minimal size of a single clause: " + this.minLength + "\n"
                 + "Minimal size of a formula: " + this.minSize + "\n" + "Number of attempts for fixing a clause: "
                 + this.clauseFixAttempts + "\n" + "Number of attempts for fixing a clause in tested formula: "

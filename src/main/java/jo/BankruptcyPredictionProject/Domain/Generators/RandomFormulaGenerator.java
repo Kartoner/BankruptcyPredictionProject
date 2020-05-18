@@ -378,7 +378,7 @@ public class RandomFormulaGenerator {
 
         double successPercentage = (successCounter * 1.0 / (this.formulaRepo.getFormulas(true).size()) * 1.0) * 1.0;
 
-        return successPercentage >= BPPConfig.getInstance().getElementToleranceThreshold();
+        return successPercentage >= BPPConfig.getInstance().getElementValidationThreshold();
     }
 
     private int validateLiteral(Literal randomLiteral) {
