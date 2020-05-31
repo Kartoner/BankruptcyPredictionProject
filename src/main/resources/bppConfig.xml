@@ -2,7 +2,7 @@
 <bppConfig>
     <clauseLength>15</clauseLength>
     <clauseNumber>120</clauseNumber>
-    <numberOfIterations>500</numberOfIterations>
+    <numberOfIterations>100</numberOfIterations>
     <fixedLength>0</fixedLength>
     <hardReset>0</hardReset>
     <formulaToleranceThreshold>0.75</formulaToleranceThreshold>

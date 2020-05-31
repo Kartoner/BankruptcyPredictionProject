@@ -119,16 +119,16 @@ public class RandomFormulaGenerator {
                         }
 
                         if (r.nextBoolean()) {
-                            if (testingResult.isAddOrRemove() != null && testingResult.isAddOrRemove()) {
+                            if (testingResult.isAddOrRemove() != null && !testingResult.isAddOrRemove() && this.generatedFormula.getFormulaSize() > 1) {
+                                int randomIndex = r.nextInt(this.generatedFormula.getFormulaSize());
+
+                                this.generatedFormula.getElements().remove(randomIndex);
+                            } else {
                                 int randomSize = r
                                         .nextInt(this.bppConfig.getClauseNumber() - this.bppConfig.getMinSize() + 1)
                                         + this.bppConfig.getMinSize();
 
                                 this.fillRandomClause(randomSize, r);
-                            } else {
-                                int randomIndex = r.nextInt(this.generatedFormula.getFormulaSize());
-
-                                this.generatedFormula.getElements().remove(randomIndex);
                             }
                         }
                     } else {
@@ -136,9 +136,9 @@ public class RandomFormulaGenerator {
                             this.generatedFormula.getElements().remove(testingResult.getFailingElement().intValue());
                         } else {
                             replaceElement(testingResult.getFailingElement());
-                            clauseFailCounter = 0;
                             clauseReplaced = true;
-                        }   
+                        }
+                        clauseFailCounter = 0;  
                     }
                 }
 
@@ -237,7 +237,12 @@ public class RandomFormulaGenerator {
 
             failingClause.getLiterals().remove(randomLiteralIndex);
 
-            this.generatedFormula.getElements().set(failingElementIndex, failingClause);
+            if (failingClause.getLiterals().isEmpty()){
+                this.generatedFormula.getElements().remove(failingElementIndex.intValue());
+                isClauseRemoved = Boolean.TRUE;
+            } else {
+                this.generatedFormula.getElements().set(failingElementIndex, failingClause);
+            }
         }
 
         return isClauseRemoved;
