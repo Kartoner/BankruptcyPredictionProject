@@ -48,6 +48,9 @@ public class ArffParser {
     public Boolean processRecord(Instance record) {
         Formula newFormula = new Formula();
         Double recordClass = null;
+        if (record.classAttribute() != null) {
+            recordClass = record.value(record.classIndex());
+        }
         for (int i = 0; i < record.numAttributes(); i++) {
             String attrName = record.attribute(i).name();
             if (this.scopeRepo.isScopeForAttribute(attrName)) {
@@ -58,10 +61,6 @@ public class ArffParser {
                     for (AttributeScope scope : scopes) {
                         String description = scope.toString();
                         Integer existingVariableSymbol = this.formulaRepo.getLiteralSymbolIfExists(description);
-
-                        if (record.classAttribute() != null) {
-                            recordClass = record.value(record.classIndex());
-                        }
 
                         if (existingVariableSymbol != null) {
                             newLiteral = new Literal(existingVariableSymbol, description, false, scope);

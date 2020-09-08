@@ -108,10 +108,12 @@ public class RandomFormulaGenerator {
                             if (testingResult.isAddOrRemove() != null && testingResult.isAddOrRemove()) {
                                 addLiteral(r, testingResult.getFailingElement());
                             } else {
-                                boolean isClauseRemoved = removeLiteral(r, testingResult.getFailingElement());
-                                if (isClauseRemoved) {
-                                    clauseFailCounter = 0;
-                                    clauseReplaced = true;
+                                if (this.generatedFormula.getElements().get(testingResult.getFailingElement()).getLength() > BPPConfig.getInstance().getMinLength()){
+                                    boolean isClauseRemoved = removeLiteral(r, testingResult.getFailingElement());
+                                    if (isClauseRemoved) {
+                                        clauseFailCounter = 0;
+                                        clauseReplaced = true;
+                                    }
                                 }
                             }
                         } else {
@@ -119,7 +121,7 @@ public class RandomFormulaGenerator {
                         }
 
                         if (r.nextBoolean()) {
-                            if (testingResult.isAddOrRemove() != null && !testingResult.isAddOrRemove() && this.generatedFormula.getFormulaSize() > 1) {
+                            if (testingResult.isAddOrRemove() != null && !testingResult.isAddOrRemove() && this.generatedFormula.getFormulaSize() > BPPConfig.getInstance().getMinSize()) {
                                 int randomIndex = r.nextInt(this.generatedFormula.getFormulaSize());
 
                                 this.generatedFormula.getElements().remove(randomIndex);
@@ -132,7 +134,7 @@ public class RandomFormulaGenerator {
                             }
                         }
                     } else {
-                        if (r.nextBoolean() && this.generatedFormula.getFormulaSize() > 1){
+                        if (r.nextBoolean() && this.generatedFormula.getFormulaSize() > BPPConfig.getInstance().getMinSize()){
                             this.generatedFormula.getElements().remove(testingResult.getFailingElement().intValue());
                         } else {
                             replaceElement(testingResult.getFailingElement());
