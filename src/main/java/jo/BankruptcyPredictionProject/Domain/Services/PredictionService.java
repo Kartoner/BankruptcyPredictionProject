@@ -6,14 +6,16 @@ import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import jo.BankruptcyPredictionProject.Configuration.BPPConfig;
-import jo.BankruptcyPredictionProject.Domain.Repositories.ArffRepo;
 import jo.BankruptcyPredictionProject.Domain.Repositories.FormulaRepo;
+import jo.BankruptcyPredictionProject.Domain.Value.PredictionResult;
+import jo.BankruptcyPredictionProject.Utility.ArffLoader;
 import jo.BankruptcyPredictionProject.Utility.BPPLogger;
 import jo.BankruptcyPredictionProject.Values.Clause;
 import jo.BankruptcyPredictionProject.Values.Formula;
 import jo.BankruptcyPredictionProject.Values.Literal;
-import jo.BankruptcyPredictionProject.Values.PredictionResult;
 import jo.BankruptcyPredictionProject.Values.Interface.FormulaElement;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -23,7 +25,9 @@ public class PredictionService {
 
     private final BPPConfig bppConfig;
     private final FormulaRepo formulaRepo = FormulaRepo.getInstance();
-    private final ArffRepo arffRepo = ArffRepo.getInstance();
+
+    @Autowired
+    private ArffLoader arffRepo;
 
     private String dataFilePath;
 

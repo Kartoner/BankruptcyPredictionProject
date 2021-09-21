@@ -7,9 +7,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import jo.BankruptcyPredictionProject.Domain.Repositories.ArffRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import jo.BankruptcyPredictionProject.Domain.Repositories.AttributeScopeRepo;
 import jo.BankruptcyPredictionProject.Domain.Repositories.FormulaRepo;
+import jo.BankruptcyPredictionProject.Utility.ArffLoader;
 import jo.BankruptcyPredictionProject.Utility.BPPLogger;
 import jo.BankruptcyPredictionProject.Values.AttributeScope;
 import jo.BankruptcyPredictionProject.Values.Formula;
@@ -22,7 +24,9 @@ public class ArffParser {
 
     private final String outputFilePath = "./src/main/resources/outputFormula.txt";
 
-    private final ArffRepo arffRepo = ArffRepo.getInstance();
+    @Autowired
+    private ArffLoader arffRepo;
+
     private final AttributeScopeRepo scopeRepo = AttributeScopeRepo.getInstance();
     private final FormulaRepo formulaRepo = FormulaRepo.getInstance();
 

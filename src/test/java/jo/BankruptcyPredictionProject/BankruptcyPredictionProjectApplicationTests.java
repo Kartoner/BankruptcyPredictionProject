@@ -10,6 +10,7 @@ import jo.BankruptcyPredictionProject.Domain.Generators.RandomFormulaGenerator;
 import jo.BankruptcyPredictionProject.Domain.Parsers.ArffParser;
 import jo.BankruptcyPredictionProject.Domain.Repositories.*;
 import jo.BankruptcyPredictionProject.Domain.Services.PredictionService;
+import jo.BankruptcyPredictionProject.Utility.ArffLoader;
 import jo.BankruptcyPredictionProject.Utility.BPPLogger;
 
 @SpringBootTest
@@ -19,9 +20,11 @@ class BankruptcyPredictionProjectApplicationTests {
 	void contextLoads() {
 	}
 
+	/*
+
 	@Test
 	void givenFilePathWhenReadingDataThenCheckStatus() {
-		ArffRepo arffRepo = ArffRepo.getInstance();
+		ArffLoader arffRepo = ArffLoader.getInstance();
 		arffRepo.setFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\3year.arff");
 		arffRepo.loadData(Boolean.TRUE);
 	}
@@ -44,14 +47,14 @@ class BankruptcyPredictionProjectApplicationTests {
 		System.out.println(bppConfig);
 	}
 
-	/*
-	 * @Test void readTestData(){ ArffRepo arffRepo = ArffRepo.getInstance();
-	 * arffRepo.
-	 * setFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\sample.arff");
-	 * arffRepo.loadData(Boolean.TRUE); FormulaRepo formulaRepo =
-	 * FormulaRepo.getInstance(); formulaRepo.loadData(); ArffParser arffParser =
-	 * ArffParser.getInstance(); arffParser.processAllRecords(Boolean.TRUE); }
-	 */
+	
+	@Test void readTestData(){ ArffRepo arffRepo = ArffRepo.getInstance();
+	  	arffRepo.
+	  	setFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\sample.arff");
+	  	arffRepo.loadData(Boolean.TRUE); FormulaRepo formulaRepo =
+	  	FormulaRepo.getInstance(); formulaRepo.loadData(); ArffParser arffParser =
+		ArffParser.getInstance(); arffParser.processAllRecords(Boolean.TRUE); 
+	}
 
 	@Test
 	void testLog() {
@@ -67,7 +70,7 @@ class BankruptcyPredictionProjectApplicationTests {
 	@Test
 	void RFGSetGenerationTest() throws JAXBException {
 		BPPLogger.clear();
-		ArffRepo arffRepo = ArffRepo.getInstance();
+		ArffLoader arffRepo = ArffLoader.getInstance();
 		arffRepo.setFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\sample.arff");
 		arffRepo.loadData(Boolean.TRUE);
 		AttributeScopeRepo scopeRepo = AttributeScopeRepo.getInstance();
@@ -82,7 +85,7 @@ class BankruptcyPredictionProjectApplicationTests {
 	@Test
 	void RFGSingleFormulaTest() throws JAXBException {
 		BPPLogger.clear();
-		ArffRepo arffRepo = ArffRepo.getInstance();
+		ArffLoader arffRepo = ArffLoader.getInstance();
 		arffRepo.setFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\sample.arff");
 		arffRepo.loadData(Boolean.TRUE);
 		AttributeScopeRepo scopeRepo = AttributeScopeRepo.getInstance();
@@ -97,7 +100,7 @@ class BankruptcyPredictionProjectApplicationTests {
 	@Test
 	void PredictionTest() throws JAXBException {
 		BPPLogger.clear();
-		ArffRepo arffRepo = ArffRepo.getInstance();
+		ArffLoader arffRepo = ArffLoader.getInstance();
 		arffRepo.setFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\sample.arff");
 		arffRepo.loadData(Boolean.TRUE);
 		AttributeScopeRepo scopeRepo = AttributeScopeRepo.getInstance();
@@ -108,4 +111,6 @@ class BankruptcyPredictionProjectApplicationTests {
 		predictionService.setDataFilePath("E:\\Programowanie\\Magisterka\\Prediction Data\\5year.arff");
 		predictionService.predict(true);
 	}
+
+	*/
 }

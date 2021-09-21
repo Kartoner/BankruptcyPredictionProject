@@ -1,4 +1,4 @@
-package jo.BankruptcyPredictionProject.Values;
+package jo.BankruptcyPredictionProject.Domain.Value;
 
 public class PredictionResult {
     

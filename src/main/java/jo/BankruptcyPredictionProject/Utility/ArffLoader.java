@@ -1,30 +1,20 @@
-package jo.BankruptcyPredictionProject.Domain.Repositories;
+package jo.BankruptcyPredictionProject.Utility;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-import jo.BankruptcyPredictionProject.Utility.BPPLogger;
+import org.springframework.stereotype.Component;
+
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader.ArffReader;
 
-public class ArffRepo {
-    private static ArffRepo instance;
+@Component
+public class ArffLoader {
 
     private String filePath;
     private Instances data;
-
-    private ArffRepo() {
-    }
-
-    public static ArffRepo getInstance() {
-        if (instance == null) {
-            instance = new ArffRepo();
-        }
-
-        return instance;
-    }
 
     public void loadData(Boolean isTest) {
         try {

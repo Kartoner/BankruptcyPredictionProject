@@ -1,4 +1,6 @@
-package jo.BankruptcyPredictionProject.Values;
+package jo.BankruptcyPredictionProject.Domain.Value;
+
+import jo.BankruptcyPredictionProject.Values.Formula;
 
 public class TestingResult {
 

@@ -54,6 +54,16 @@ public class Clause {
         return false;
     }
 
+    public boolean containsVariable(String description) {
+        for (Literal literal : this.literals) {
+            if (literal.getDescription().equals(description)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     @Override
     public String toString() {
         String result = "";
