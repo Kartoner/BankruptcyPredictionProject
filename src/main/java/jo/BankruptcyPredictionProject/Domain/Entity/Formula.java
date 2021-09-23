@@ -44,6 +44,9 @@ public class Formula {
     @JoinTable(name = "FORMULA_CLAUSE", joinColumns = @JoinColumn(name = "FOR_ID"), inverseJoinColumns = @JoinColumn(name = "CLA_ID"))
     private List<Clause> clauses = new ArrayList<>();
 
+    @Column(name = "FOR_WEIGHT")
+    private Double weight;
+
     @Transient
     private Set<String> uniqueVariables = new HashSet<>();
 
