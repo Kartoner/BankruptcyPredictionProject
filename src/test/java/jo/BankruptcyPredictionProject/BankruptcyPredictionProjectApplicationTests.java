@@ -1,17 +1,7 @@
 package jo.BankruptcyPredictionProject;
 
-import javax.xml.bind.JAXBException;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import jo.BankruptcyPredictionProject.Configuration.BPPConfig;
-import jo.BankruptcyPredictionProject.Domain.Generators.RandomFormulaGenerator;
-import jo.BankruptcyPredictionProject.Domain.Parsers.ArffParser;
-import jo.BankruptcyPredictionProject.Domain.Repositories.*;
-import jo.BankruptcyPredictionProject.Domain.Services.PredictionService;
-import jo.BankruptcyPredictionProject.Utility.ArffLoader;
-import jo.BankruptcyPredictionProject.Utility.BPPLogger;
 
 @SpringBootTest
 class BankruptcyPredictionProjectApplicationTests {

@@ -12,4 +12,6 @@ import jo.BankruptcyPredictionProject.Domain.Enumeration.ClauseType;
 public interface ClauseRepository extends JpaRepository<Clause, Long> {
     
     List<Clause> findByClauseType(ClauseType type);
+
+    Clause findByExtDescription(String extDescription);
 }

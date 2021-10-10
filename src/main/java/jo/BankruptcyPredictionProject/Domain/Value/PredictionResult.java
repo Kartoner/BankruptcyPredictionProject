@@ -1,5 +1,12 @@
 package jo.BankruptcyPredictionProject.Domain.Value;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PredictionResult {
     
     private Boolean predictionCorrect;
@@ -7,34 +14,4 @@ public class PredictionResult {
     private Boolean expected;
 
     private Boolean received;
-
-    public PredictionResult(Boolean predictionCorrect, Boolean expected, Boolean received){
-        this.predictionCorrect = predictionCorrect;
-        this.expected = expected;
-        this.received = received;
-    }
-
-    public Boolean isPredictionCorrect() {
-        return predictionCorrect;
-    }
-
-    public void setPredictionCorrect(Boolean predictionCorrect) {
-        this.predictionCorrect = predictionCorrect;
-    }
-
-    public Boolean getExpected() {
-        return expected;
-    }
-
-    public void setExpected(Boolean expected) {
-        this.expected = expected;
-    }
-
-    public Boolean getReceived() {
-        return received;
-    }
-
-    public void setReceived(Boolean received) {
-        this.received = received;
-    }
 }

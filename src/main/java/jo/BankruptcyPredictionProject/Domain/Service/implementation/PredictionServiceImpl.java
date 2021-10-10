@@ -1,53 +1,38 @@
-package jo.BankruptcyPredictionProject.Domain.Services;
+package jo.BankruptcyPredictionProject.Domain.Service.implementation;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import jo.BankruptcyPredictionProject.Configuration.BPPConfig;
-import jo.BankruptcyPredictionProject.Domain.Repositories.FormulaRepo;
+import jo.BankruptcyPredictionProject.Domain.Entity.Clause;
+import jo.BankruptcyPredictionProject.Domain.Entity.Formula;
+import jo.BankruptcyPredictionProject.Domain.Entity.Literal;
+import jo.BankruptcyPredictionProject.Domain.Enumeration.FormulaType;
+import jo.BankruptcyPredictionProject.Domain.Service.FormulaService;
+import jo.BankruptcyPredictionProject.Domain.Service.PredictionService;
 import jo.BankruptcyPredictionProject.Domain.Value.PredictionResult;
 import jo.BankruptcyPredictionProject.Utility.ArffLoader;
 import jo.BankruptcyPredictionProject.Utility.BPPLogger;
-import jo.BankruptcyPredictionProject.Values.Clause;
-import jo.BankruptcyPredictionProject.Values.Formula;
-import jo.BankruptcyPredictionProject.Values.Literal;
-import jo.BankruptcyPredictionProject.Values.Interface.FormulaElement;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class PredictionService {
-    private static PredictionService instance;
-
-    private final BPPConfig bppConfig;
-    private final FormulaRepo formulaRepo = FormulaRepo.getInstance();
+@Service
+public class PredictionServiceImpl implements PredictionService {
 
     @Autowired
-    private ArffLoader arffRepo;
+    private FormulaService formulaService;
 
-    private String dataFilePath;
+    @Autowired
+    private ArffLoader arffLoader;
 
-    private PredictionService() throws JAXBException {
-        bppConfig = BPPConfig.getInstance();
-    }
-
-    public static PredictionService getInstance() throws JAXBException {
-        if (instance == null){
-            instance = new PredictionService();
-        }
-
-        return instance;
-    }
-
-    public void predict(boolean isTest){
-        String oldPath = this.arffRepo.getFilePath();
-        Instances oldData = this.arffRepo.getData();
-        this.arffRepo.setFilePath(this.dataFilePath);
-        this.arffRepo.loadData(isTest);
+    public void predict(boolean isTest, String dataFilePath) {
+        String oldPath = this.arffLoader.getFilePath();
+        Instances oldData = this.arffLoader.getData();
+        this.arffLoader.setFilePath(dataFilePath);
+        this.arffLoader.loadData(isTest);
 
         int correctPredictions = 0;
         int incorrectPredictions = 0;
@@ -60,18 +45,18 @@ public class PredictionService {
 
         BPPLogger.log("---------------------------");
         BPPLogger.log("Prediction started");
-        BPPLogger.log("Data size: " + this.arffRepo.getData().numInstances());
+        BPPLogger.log("Data size: " + this.arffLoader.getData().numInstances());
 
-        for (int i = 0; i < this.arffRepo.getData().numInstances(); i++){
+        for (int i = 0; i < this.arffLoader.getData().numInstances(); i++) {
             BPPLogger.log("Record No.: " + i);
 
-            PredictionResult predictionResult = getPredictionForRecord(this.arffRepo.getData().get(i), isTest);
-            
-            if (predictionResult.isPredictionCorrect() != null){
-                if (predictionResult.isPredictionCorrect()){
+            PredictionResult predictionResult = getPredictionForRecord(this.arffLoader.getData().get(i), isTest);
+
+            if (predictionResult.getPredictionCorrect() != null) {
+                if (predictionResult.getPredictionCorrect()) {
                     correctPredictions++;
 
-                    if (predictionResult.getExpected()){
+                    if (predictionResult.getExpected()) {
                         bankruptCounter++;
                         bankruptCorrect++;
                     } else {
@@ -81,7 +66,7 @@ public class PredictionService {
                 } else {
                     incorrectPredictions++;
 
-                    if (predictionResult.getExpected()){
+                    if (predictionResult.getExpected()) {
                         bankruptCounter++;
                         bankruptIncorrect++;
                     } else {
@@ -94,8 +79,8 @@ public class PredictionService {
 
         BPPLogger.log("Finished!");
 
-        if (isTest){
-            int dataSize = this.arffRepo.getData().numInstances();
+        if (isTest) {
+            int dataSize = this.arffLoader.getData().numInstances();
             double correctnessRatio = (correctPredictions * 1.0 / dataSize * 1.0) * 1.0;
             double bankruptCorrectnessRatio = (bankruptCorrect * 1.0 / bankruptCounter * 1.0) * 1.0;
             double notBankruptCorrectnessRatio = (notBankruptCorrect * 1.0 / notBankruptCounter * 1.0) * 1.0;
@@ -115,8 +100,8 @@ public class PredictionService {
 
         BPPLogger.log("---------------------------");
 
-        this.arffRepo.setFilePath(oldPath);
-        this.arffRepo.setData(oldData);
+        this.arffLoader.setFilePath(oldPath);
+        this.arffLoader.setData(oldData);
     }
 
     private PredictionResult getPredictionForRecord(Instance record, boolean isTest) {
@@ -125,25 +110,21 @@ public class PredictionService {
         Boolean received = null;
 
         boolean recordClass = true;
-        if (isTest){
+        if (isTest) {
             recordClass = record.classValue() == 1.0 ? true : false;
         }
 
-        List<Formula> assessmentFormulas = this.formulaRepo.getFormulas(null);
+        List<Formula> assessmentFormulas = this.formulaService.getFormulasByType(FormulaType.ASSESSMENT);
         List<Boolean> results = new ArrayList<Boolean>();
 
         for (Formula assessmentFormula : assessmentFormulas) {
             List<List<Boolean>> predictionMatrix = new LinkedList<>();
             for (int j = 0; j < assessmentFormula.getFormulaSize(); j++) {
                 predictionMatrix.add(new LinkedList<Boolean>());
-                FormulaElement formulaElement = assessmentFormula.getElements().get(j);
-                if (formulaElement instanceof Literal) {
+                
+                Clause clause = assessmentFormula.getClauses().get(j);
+                for (int k = 0; k < clause.getLiterals().size(); k++) {
                     predictionMatrix.get(j).add(Boolean.FALSE);
-                } else if (formulaElement instanceof Clause) {
-                    Clause clause = (Clause) formulaElement;
-                    for (int k = 0; k < clause.getLiterals().size(); k++) {
-                        predictionMatrix.get(j).add(Boolean.FALSE);
-                    }
                 }
             }
 
@@ -154,26 +135,18 @@ public class PredictionService {
                 String attrName = record.attribute(j).name();
                 Double value = record.value(j);
 
-                for (int k = 0; k < assessmentFormula.getElements().size(); k++) {
-                    FormulaElement formulaElement = assessmentFormula.getElements().get(k);
+                for (int k = 0; k < assessmentFormula.getFormulaSize(); k++) {
+                    Clause clause = assessmentFormula.getClauses().get(k);
 
-                    if (formulaElement instanceof Literal) {
-                        Literal literal = (Literal) formulaElement;
-                        if (literal.getScope() != null && literal.getScope().getAttrName().equals(attrName)
-                                && literal.getScope().isApplicable(value)) {
-                            predictionMatrix.get(k).set(0, Boolean.TRUE && !literal.getIsNegative());
-                        }
-                    } else if (formulaElement instanceof Clause) {
-                        Clause clause = (Clause) formulaElement;
-
-                        for (int l = 0; l < clause.getLiterals().size(); l++) {
-                            Literal literal = clause.getLiterals().get(l);
-                            if (literal.getScope() != null && literal.getScope().getAttrName().equals(attrName)
-                                    && literal.getScope().isApplicable(value)) {
-                                predictionMatrix.get(k).set(l, Boolean.TRUE && !literal.getIsNegative());
-                            }
+                    for (int l = 0; l < clause.getLiterals().size(); l++) {
+                        Literal literal = clause.getLiterals().get(l);
+                        if (literal.getAttributeScope() != null
+                                && literal.getAttributeScope().getAttrName().equals(attrName)
+                                && literal.getAttributeScope().isApplicable(value)) {
+                            predictionMatrix.get(k).set(l, Boolean.TRUE && !literal.isNegative());
                         }
                     }
+
                 }
             }
 
@@ -196,11 +169,11 @@ public class PredictionService {
             results.add(evalResult);
         }
 
-        //Calculate end result
+        // Calculate end result
         boolean endResult = true;
         int votesBankrupt = 0;
         int votesNotBankrupt = 0;
-        for (Boolean result : results){
+        for (Boolean result : results) {
             if (result) {
                 votesBankrupt++;
             } else {
@@ -208,7 +181,7 @@ public class PredictionService {
             }
         }
 
-        if (votesBankrupt >= votesNotBankrupt){
+        if (votesBankrupt >= votesNotBankrupt) {
             endResult = true;
             BPPLogger.log("Major risk of bankruptcy detected!");
         } else {
@@ -216,16 +189,12 @@ public class PredictionService {
             BPPLogger.log("No major risk of bankruptcy detected!");
         }
 
-        if (isTest){
+        if (isTest) {
             predictionCorrect = !(endResult ^ recordClass);
             expected = recordClass;
             received = endResult;
         }
 
         return new PredictionResult(predictionCorrect, expected, received);
-    }
-
-    public void setDataFilePath(String dataFilePath) {
-        this.dataFilePath = dataFilePath;
     }
 }

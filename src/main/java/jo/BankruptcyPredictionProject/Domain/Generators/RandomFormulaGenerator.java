@@ -109,7 +109,7 @@ public class RandomFormulaGenerator {
                                                                                        */
                     ) {
                         if (r.nextBoolean()) {
-                            if (testingResult.isAddOrRemove() != null && testingResult.isAddOrRemove()) {
+                            if (testingResult.getAddOrRemove() != null && testingResult.getAddOrRemove()) {
                                 addLiteral(r, testingResult.getFailingElement());
                             } else {
                                 if (this.generatedFormula.getElements().get(testingResult.getFailingElement()).getLength() > BPPConfig.getInstance().getMinLength()){
@@ -125,7 +125,7 @@ public class RandomFormulaGenerator {
                         }
 
                         if (r.nextBoolean()) {
-                            if (testingResult.isAddOrRemove() != null && !testingResult.isAddOrRemove() && this.generatedFormula.getFormulaSize() > BPPConfig.getInstance().getMinSize()) {
+                            if (testingResult.getAddOrRemove() != null && !testingResult.getAddOrRemove() && this.generatedFormula.getFormulaSize() > BPPConfig.getInstance().getMinSize()) {
                                 int randomIndex = r.nextInt(this.generatedFormula.getFormulaSize());
 
                                 this.generatedFormula.getElements().remove(randomIndex);

@@ -40,6 +40,9 @@ public class Clause {
     @JoinTable(name = "CLAUSE_LITERAL", joinColumns = @JoinColumn(name = "CLA_ID"), inverseJoinColumns = @JoinColumn(name = "LIT_ID"))
     private List<Literal> literals = new ArrayList<>();
 
+    @Column(name = "CLA_EXT_DESCRIPTION", nullable = false)
+    private String extDescription;
+
     public void attach(Literal literal) {
         this.literals.add(literal);
     }
@@ -87,6 +90,19 @@ public class Clause {
         result = result.substring(0, result.length() - 1);
 
         return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+
+        Clause c = (Clause) obj;
+        return this.toExtString().equals(c.toExtString());
     }
 
     public int getLength() {

@@ -11,4 +11,6 @@ import jo.BankruptcyPredictionProject.Domain.Entity.Literal;
 public interface LiteralRepository extends JpaRepository<Literal, Long> {
     
     List<Literal> findByDescription(String description);
+
+    Literal findByExtDescription(String extDescription);
 }

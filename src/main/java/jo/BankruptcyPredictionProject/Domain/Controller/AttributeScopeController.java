@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jo.BankruptcyPredictionProject.Domain.Service.AttributeScopeService;
+import jo.BankruptcyPredictionProject.Request.LoadFromFileRequest;
 
 @RequestMapping("scope")
 @RestController
@@ -16,9 +17,9 @@ public class AttributeScopeController {
     private AttributeScopeService attributeScopeService;
 
     @PostMapping("/load")
-    public String loadFromFile(@RequestBody String filePath) {
-        int loadedScopes = this.attributeScopeService.loadScopesFromFile(filePath);
+    public String loadFromFile(@RequestBody LoadFromFileRequest request) {
+        int loadedScopes = this.attributeScopeService.loadScopesFromFile(request.getFilePath());
 
-        return "Done reading from file: " + filePath + ". Loaded scopes: " + loadedScopes;
+        return "Done reading from file: " + request.getFilePath() + ". Loaded scopes: " + loadedScopes;
     }
 }

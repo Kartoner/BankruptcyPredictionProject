@@ -35,6 +35,9 @@ public class Literal {
     @JoinColumn(name = "LIT_ATS_ID")
     private AttributeScope attributeScope;
 
+    @Column(name = "LIT_EXT_DESCRIPTION", nullable = false)
+    private String extDescription;
+
     @Override
     public String toString() {
         if (!isNegative) {
@@ -50,5 +53,18 @@ public class Literal {
         } else {
             return "~" + this.description;
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+
+        Literal l = (Literal) obj;
+        return this.toExtString().equals(l.toExtString());
     }
 }
