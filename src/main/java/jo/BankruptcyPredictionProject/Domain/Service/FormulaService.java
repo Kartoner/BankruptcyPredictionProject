@@ -1,12 +1,12 @@
 package jo.BankruptcyPredictionProject.Domain.Service;
 
-import java.util.List;
-
 import jo.BankruptcyPredictionProject.Domain.Entity.Clause;
 import jo.BankruptcyPredictionProject.Domain.Entity.Formula;
 import jo.BankruptcyPredictionProject.Domain.Entity.Literal;
 import jo.BankruptcyPredictionProject.Domain.Enumeration.ClauseType;
 import jo.BankruptcyPredictionProject.Domain.Enumeration.FormulaType;
+
+import java.util.List;
 
 public interface FormulaService {
 
@@ -20,9 +20,13 @@ public interface FormulaService {
 
     List<Clause> getClausesByType(ClauseType type);
 
+    Literal getLiteralByExtDescription(String extDescription);
+
     Literal createLiteral(Literal literal);
 
-    int loadFormulasFromFile(String formulasFilePath, FormulaType type);
+    int loadFormulasBatch(String formulasFilePath, FormulaType type);
+
+    List<Formula> loadFormulasFromFile(String formulasFilePath, FormulaType type);
 
     int loadFormulasFromArffFile(String filePath, Integer start, Integer end);
 }

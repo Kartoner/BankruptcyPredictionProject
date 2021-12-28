@@ -1,6 +1,6 @@
 package jo.BankruptcyPredictionProject.Domain.Value;
 
-import jo.BankruptcyPredictionProject.Values.Formula;
+import jo.BankruptcyPredictionProject.Domain.Entity.Formula;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

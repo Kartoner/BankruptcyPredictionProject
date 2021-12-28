@@ -19,7 +19,7 @@ public class FormulaController {
 
     @PostMapping("/load")
     public String loadFromFile(@RequestBody LoadFormulasFromFileRequest request) {
-        int loadedFormulas = this.formulaService.loadFormulasFromFile(request.getFilePath(), request.getType());
+        int loadedFormulas = this.formulaService.loadFormulasBatch(request.getFilePath(), request.getType());
 
         return "Done reading from file: " + request.getFilePath() + ". Loaded formulas: " + loadedFormulas;
     }

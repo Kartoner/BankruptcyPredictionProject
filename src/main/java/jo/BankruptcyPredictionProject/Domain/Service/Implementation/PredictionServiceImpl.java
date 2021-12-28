@@ -1,4 +1,4 @@
-package jo.BankruptcyPredictionProject.Domain.Service.implementation;
+package jo.BankruptcyPredictionProject.Domain.Service.Implementation;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

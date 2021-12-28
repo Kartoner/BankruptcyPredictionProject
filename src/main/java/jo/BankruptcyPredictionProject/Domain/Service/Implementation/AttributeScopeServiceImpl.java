@@ -1,4 +1,4 @@
-package jo.BankruptcyPredictionProject.Domain.Service.implementation;
+package jo.BankruptcyPredictionProject.Domain.Service.Implementation;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

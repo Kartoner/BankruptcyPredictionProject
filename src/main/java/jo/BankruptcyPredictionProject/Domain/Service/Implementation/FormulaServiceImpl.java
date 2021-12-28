@@ -1,16 +1,4 @@
-package jo.BankruptcyPredictionProject.Domain.Service.implementation;
-
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+package jo.BankruptcyPredictionProject.Domain.Service.Implementation;
 
 import jo.BankruptcyPredictionProject.Domain.Entity.AttributeScope;
 import jo.BankruptcyPredictionProject.Domain.Entity.Clause;
@@ -25,6 +13,17 @@ import jo.BankruptcyPredictionProject.Domain.Repository.LiteralRepository;
 import jo.BankruptcyPredictionProject.Domain.Service.AttributeScopeService;
 import jo.BankruptcyPredictionProject.Domain.Service.FormulaService;
 import jo.BankruptcyPredictionProject.Utility.BPPLogger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FormulaServiceImpl implements FormulaService {
@@ -120,6 +119,12 @@ public class FormulaServiceImpl implements FormulaService {
 
     @Override
     @Transactional
+    public Literal getLiteralByExtDescription(String extDescription) {
+        return this.literalRepository.findByExtDescription(extDescription);
+    }
+
+    @Override
+    @Transactional
     public Literal createLiteral(Literal literal) {
         if (!this.literalExists(literal)) {
             return this.literalRepository.save(literal);
@@ -140,8 +145,17 @@ public class FormulaServiceImpl implements FormulaService {
 
     @Override
     @Transactional
-    public int loadFormulasFromFile(String formulasFilePath, FormulaType type) {
-        int loadedFormulas = 0;
+    public int loadFormulasBatch(String formulasFilePath, FormulaType type) {
+        List<Formula> formulas = this.loadFormulasFromFile(formulasFilePath, type);
+        this.formulaRepository.saveAll(formulas);
+        return formulas.size();
+    }
+
+    @Override
+    @Transactional
+    public List<Formula> loadFormulasFromFile(String formulasFilePath, FormulaType type) {
+        int loadedFormulasCount = 0;
+        List<Formula> loadedFormulas = new ArrayList<>();
 
         prepareFormulasList();
 
@@ -159,9 +173,9 @@ public class FormulaServiceImpl implements FormulaService {
                         currentFormula.setFormulaType(type);
 
                         if (!this.formulaExistsForLoading(currentFormula)) {
-                            this.formulaRepository.save(currentFormula);
+                            loadedFormulas.add(currentFormula);
                             this.formulas.add(currentFormula);
-                            loadedFormulas++;
+                            loadedFormulasCount++;
                         }
                     } else {
                         if (assignToNewFormula) {
@@ -181,7 +195,7 @@ public class FormulaServiceImpl implements FormulaService {
             e.printStackTrace();
         }
 
-        BPPLogger.log("Done reading from file: " + formulasFilePath + ". Loaded formulas: " + loadedFormulas);
+        BPPLogger.log("Done reading from file: " + formulasFilePath + ". Loaded formulas: " + loadedFormulasCount);
         clearFormulasList();
         return loadedFormulas;
     }
