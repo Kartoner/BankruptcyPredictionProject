@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import jo.BankruptcyPredictionProject.Domain.Service.PredictionService;
 import jo.BankruptcyPredictionProject.Request.LoadFromFileRequest;
 
+import javax.validation.Valid;
+
 @RequestMapping("prediction")
 @RestController
 public class PredictionController {
@@ -17,7 +19,7 @@ public class PredictionController {
     private PredictionService predictionService;
 
     @PostMapping("/predict")
-    public String predict(@RequestBody LoadFromFileRequest request) {
+    public String predict(@Valid @RequestBody LoadFromFileRequest request) {
         this.predictionService.predict(true, request.getFilePath());
         
         return "Prediction finished. Check the logs for details";

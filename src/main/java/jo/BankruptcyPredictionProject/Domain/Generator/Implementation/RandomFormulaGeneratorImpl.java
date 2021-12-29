@@ -63,13 +63,13 @@ public class RandomFormulaGeneratorImpl implements RandomFormulaGenerator {
         return generatedFormulaCounter;
     }
 
-    public boolean tryGenerateSingleFormulaFromFile(String inputFilePath, String testDataFilePath, int formulaNo) throws JAXBException {
+    public boolean tryGenerateSingleFormulaFromFile(String inputFilePath, String testDataFilePath, Integer formulaNo) throws JAXBException {
         String oldPath = this.arffRepo.getFilePath();
         Instances oldData = this.arffRepo.getData();
         this.arffRepo.setFilePath(testDataFilePath);
         this.arffRepo.loadData(Boolean.TRUE);
 
-        boolean generationResult = generateFormula(true, inputFilePath, formulaNo);
+        boolean generationResult = generateFormula(true, inputFilePath, formulaNo == null ? 0 : formulaNo);
         BPPLogger.log("Formula generated: " + generationResult);
 
         this.arffRepo.setFilePath(oldPath);

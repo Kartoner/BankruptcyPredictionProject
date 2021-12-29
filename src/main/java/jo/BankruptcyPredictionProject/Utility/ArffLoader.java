@@ -18,7 +18,7 @@ public class ArffLoader {
 
     public void loadData(Boolean isTest) {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(new File(this.filePath)));
+            BufferedReader reader = new BufferedReader(new FileReader(this.filePath));
             ArffReader arff;
             arff = new ArffReader(reader, 1000);
             this.data = arff.getStructure();
