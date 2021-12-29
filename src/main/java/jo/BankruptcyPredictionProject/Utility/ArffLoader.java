@@ -1,14 +1,12 @@
 package jo.BankruptcyPredictionProject.Utility;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-
 import org.springframework.stereotype.Component;
-
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader.ArffReader;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 @Component
 public class ArffLoader {

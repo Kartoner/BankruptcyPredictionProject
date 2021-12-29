@@ -2,6 +2,7 @@ package jo.BankruptcyPredictionProject.Domain.Parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,8 +42,14 @@ public class ArffParser {
 
     private List<Formula> parsedFormulas = new ArrayList<>();
 
+    private List<Literal> literals = new ArrayList<>();
+
+    private List<Clause> clauses = new ArrayList<>();
+
     private void clear() {
         this.parsedFormulas = new ArrayList<>();
+        this.literals = new ArrayList<>();
+        this.clauses = new ArrayList<>();
     }
 
     public Boolean processRecord(Instance record) {
@@ -67,23 +74,27 @@ public class ArffParser {
                         literal.setNegative(false);
                         literal.setExtDescription(literal.toExtString());
 
-                        Literal existingLiteral = this.literalRepository.findByExtDescription(literal.getExtDescription());
+                        Optional<Literal> existingLiteral = this.literals.stream()
+                                .filter(l -> l.getExtDescription().equals(literal.getExtDescription()))
+                                .findFirst();
 
-                        if (existingLiteral != null) {
-                            clause.attach(existingLiteral);
+                        if (existingLiteral.isPresent()) {
+                            clause.attach(existingLiteral.get());
                         } else {
-                            Literal newLiteral = this.literalRepository.save(literal);
-                            clause.attach(newLiteral);
+                            this.literals.add(literal);
+                            clause.attach(literal);
                         }
                         clause.setExtDescription(clause.toExtString());
 
-                        Clause existingClause = this.clauseRepository.findByExtDescription(clause.getExtDescription());
+                        Optional<Clause> existingClause = this.clauses.stream()
+                                .filter(c -> c.getExtDescription().equals(clause.getExtDescription()))
+                                .findFirst();
 
-                        if (existingClause != null) {
-                            newFormula.attach(existingClause);
+                        if (existingClause.isPresent()) {
+                            newFormula.attach(existingClause.get());
                         } else {
-                            Clause newClause = this.clauseRepository.save(clause);
-                            newFormula.attach(newClause);
+                            this.clauses.add(clause);
+                            newFormula.attach(clause);
                         }
                     }
                 }
@@ -105,6 +116,8 @@ public class ArffParser {
 
     public int processAllRecords(Integer start, Integer end) {
         clear();
+        this.literals = this.literalRepository.findAll();
+        this.clauses = this.clauseRepository.findByClauseType(ClauseType.STANDARD);
         this.arffLoader.loadData(true);
         Instances records = this.arffLoader.getData();
         Boolean processingResult = null;
@@ -112,6 +125,7 @@ public class ArffParser {
 
         int startingIndex = start == null ? 0 : start;
         int endingIndex = end == null ? records.numInstances() : end;
+        int remaining = endingIndex - startingIndex;
 
         for (int i = startingIndex; i < endingIndex; i++) {
             Instance record = records.get(i);
@@ -128,7 +142,9 @@ public class ArffParser {
                 }
 
                 if (result) {
+                    remaining--;
                     count++;
+                    BPPLogger.log("Formula processed, " + remaining + " remaining");
                 }
             
         }
