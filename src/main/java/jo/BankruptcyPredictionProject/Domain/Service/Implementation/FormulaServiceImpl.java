@@ -23,6 +23,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,12 +46,20 @@ public class FormulaServiceImpl implements FormulaService {
 
     private List<Formula> formulas = new ArrayList<>();
 
-    private void prepareFormulasList() {
+    private List<Literal> literals = new ArrayList<>();
+
+    private List<Clause> clauses = new ArrayList<>();
+
+    private void prepareListsForLoading() {
         this.formulas = this.formulaRepository.findAll();
+        this.literals = this.literalRepository.findAll();
+        this.clauses = this.clauseRepository.findAll();
     }
 
-    private void clearFormulasList() {
+    private void clear() {
         this.formulas = new ArrayList<>();
+        this.literals = new ArrayList<>();
+        this.clauses = new ArrayList<>();
     }
 
     @Override
@@ -157,7 +166,7 @@ public class FormulaServiceImpl implements FormulaService {
         int loadedFormulasCount = 0;
         List<Formula> loadedFormulas = new ArrayList<>();
 
-        prepareFormulasList();
+        prepareListsForLoading();
 
         try (BufferedReader br = new BufferedReader(new FileReader(formulasFilePath))) {
             String line = "";
@@ -196,7 +205,7 @@ public class FormulaServiceImpl implements FormulaService {
         }
 
         BPPLogger.log("Done reading from file: " + formulasFilePath + ". Loaded formulas: " + loadedFormulasCount);
-        clearFormulasList();
+        clear();
         return loadedFormulas;
     }
 
@@ -212,16 +221,19 @@ public class FormulaServiceImpl implements FormulaService {
         clause.setClauseType(ClauseType.STANDARD);
         clause.setExtDescription(clause.toExtString());
 
-        return this.createOrGetClause(clause);
+        return this.replaceForExistingIfClauseExists(clause);
     }
 
-    private Clause createOrGetClause(Clause clause) {
-        Clause existingClause = this.clauseRepository.findByExtDescription(clause.getExtDescription());
-        if (existingClause != null) {
-            return existingClause;
+    private Clause replaceForExistingIfClauseExists(Clause clause) {
+        Optional<Clause> existingClause = this.clauses.stream()
+                .filter(c -> c.getExtDescription().equals(clause.getExtDescription()))
+                .findFirst();
+        if (existingClause.isPresent()) {
+            return existingClause.get();
         }
 
-        return this.clauseRepository.save(clause);
+        this.clauses.add(clause);
+        return clause;
     }
 
     private Literal createLiteralFromString(String literalString){
@@ -245,16 +257,19 @@ public class FormulaServiceImpl implements FormulaService {
         literal.setAttributeScope(scope);
         literal.setExtDescription(literal.toExtString());
 
-        return this.createOrGetLiteral(literal);
+        return this.replaceForExistingIfLiteralExists(literal);
     }
 
-    private Literal createOrGetLiteral(Literal literal) {
-        Literal existingLiteral = this.literalRepository.findByExtDescription(literal.getExtDescription());
-        if (existingLiteral != null) {
-            return existingLiteral;
+    private Literal replaceForExistingIfLiteralExists(Literal literal) {
+        Optional<Literal> existingLiteral = this.literals.stream()
+                .filter(l -> l.getExtDescription().equals(literal.getExtDescription()))
+                .findFirst();
+        if (existingLiteral.isPresent()) {
+            return existingLiteral.get();
         }
 
-        return this.literalRepository.save(literal);
+        this.literals.add(literal);
+        return literal;
     }
 
     private String prepareString(String s) {

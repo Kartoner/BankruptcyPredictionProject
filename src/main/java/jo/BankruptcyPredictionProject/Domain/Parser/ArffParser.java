@@ -123,8 +123,11 @@ public class ArffParser {
         Boolean processingResult = null;
         int count = 0;
 
-        int startingIndex = start == null ? 0 : start;
-        int endingIndex = end == null ? records.numInstances() : end;
+        int startingIndex = start == null || start < 0 ? 0 : start;
+        int endingIndex = end == null || end > records.numInstances() ? records.numInstances() : end;
+        if (startingIndex > endingIndex) {
+            startingIndex = 0;
+        }
         int remaining = endingIndex - startingIndex;
 
         for (int i = startingIndex; i < endingIndex; i++) {

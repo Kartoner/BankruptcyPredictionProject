@@ -1,5 +1,5 @@
 HELP.md
-log.txt
+src/main/resources/log.txt
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**
