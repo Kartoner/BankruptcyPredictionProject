@@ -167,6 +167,7 @@ public class FormulaServiceImpl implements FormulaService {
         List<Formula> loadedFormulas = new ArrayList<>();
 
         prepareListsForLoading();
+        BPPLogger.log("Data loaded");
 
         try (BufferedReader br = new BufferedReader(new FileReader(formulasFilePath))) {
             String line = "";
@@ -180,10 +181,14 @@ public class FormulaServiceImpl implements FormulaService {
                     if (line.equals("---")) {
                         assignToNewFormula = true;
                         currentFormula.setFormulaType(type);
+                        if (currentFormula.getWeight() == null) {
+                            currentFormula.setWeight(0.75);
+                        }
 
                         if (!this.formulaExistsForLoading(currentFormula)) {
                             loadedFormulas.add(currentFormula);
                             this.formulas.add(currentFormula);
+                            BPPLogger.log("Formula processed");
                             loadedFormulasCount++;
                         }
                     } else {
@@ -192,7 +197,15 @@ public class FormulaServiceImpl implements FormulaService {
                             assignToNewFormula = false;
                         }
 
-                        currentFormula.attach(processLine(prepareString(line)));
+                        String[] lineSplit = prepareString(line).split(" ");
+
+                        if (lineSplit[0].equals("W:")) {
+                            currentFormula.setWeight(Double.parseDouble(lineSplit[1]));
+                        } else {
+                            BPPLogger.log("Processing line: " + line);
+                            currentFormula.attach(createClauseFromLine(lineSplit));
+                            BPPLogger.log("Line processed");
+                        }
                     }
                 }
             }
@@ -209,8 +222,7 @@ public class FormulaServiceImpl implements FormulaService {
         return loadedFormulas;
     }
 
-    private Clause processLine(String line){
-        String[] lineSplit = line.split(" ");
+    private Clause createClauseFromLine(String[] lineSplit){
         Clause clause = new Clause();
 
         for (int i = 0; i < lineSplit.length; i++){
@@ -221,10 +233,10 @@ public class FormulaServiceImpl implements FormulaService {
         clause.setClauseType(ClauseType.STANDARD);
         clause.setExtDescription(clause.toExtString());
 
-        return this.replaceForExistingIfClauseExists(clause);
+        return this.replaceWithExistingIfClauseExists(clause);
     }
 
-    private Clause replaceForExistingIfClauseExists(Clause clause) {
+    private Clause replaceWithExistingIfClauseExists(Clause clause) {
         Optional<Clause> existingClause = this.clauses.stream()
                 .filter(c -> c.getExtDescription().equals(clause.getExtDescription()))
                 .findFirst();
@@ -257,10 +269,10 @@ public class FormulaServiceImpl implements FormulaService {
         literal.setAttributeScope(scope);
         literal.setExtDescription(literal.toExtString());
 
-        return this.replaceForExistingIfLiteralExists(literal);
+        return this.replaceWithExistingIfLiteralExists(literal);
     }
 
-    private Literal replaceForExistingIfLiteralExists(Literal literal) {
+    private Literal replaceWithExistingIfLiteralExists(Literal literal) {
         Optional<Literal> existingLiteral = this.literals.stream()
                 .filter(l -> l.getExtDescription().equals(literal.getExtDescription()))
                 .findFirst();
