@@ -188,8 +188,8 @@ public class FormulaServiceImpl implements FormulaService {
                         if (!this.formulaExistsForLoading(currentFormula)) {
                             loadedFormulas.add(currentFormula);
                             this.formulas.add(currentFormula);
-                            BPPLogger.log("Formula processed");
                             loadedFormulasCount++;
+                            BPPLogger.log("Formula no. " + loadedFormulasCount + " processed");
                         }
                     } else {
                         if (assignToNewFormula) {
