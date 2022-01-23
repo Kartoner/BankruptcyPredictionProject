@@ -30,6 +30,14 @@ public class RandomFormulaGeneratorImpl implements RandomFormulaGenerator {
 
     private Formula generatedFormula = new Formula();
 
+    private List<Formula> bankruptFormulas = new ArrayList<>();
+
+    private List<Formula> notBankruptFormulas = new ArrayList<>();
+
+    private List<Literal> literals = new ArrayList<>();
+
+    private List<Clause> businessRules = new ArrayList<>();
+
     @Autowired
     public RandomFormulaGeneratorImpl(FormulaService formulaService, ArffLoader arffRepo) throws JAXBException {
         bppConfig = BPPConfig.getInstance();
@@ -40,8 +48,7 @@ public class RandomFormulaGeneratorImpl implements RandomFormulaGenerator {
     public int tryGenerateSetOfRandomFormulas(int numOfFormulas, boolean readFromFile, String inputFilePath, String testDataFilePath) throws JAXBException {
         String oldPath = this.arffRepo.getFilePath();
         Instances oldData = this.arffRepo.getData();
-        this.arffRepo.setFilePath(testDataFilePath);
-        this.arffRepo.loadData(Boolean.TRUE);
+        setup(testDataFilePath);
 
         int generatedFormulaCounter = 0;
         for (int i = 0; i < numOfFormulas; i++) {
@@ -52,29 +59,49 @@ public class RandomFormulaGeneratorImpl implements RandomFormulaGenerator {
                 generatedFormulaCounter++;
                 this.generatedFormula.setFormulaType(FormulaType.ASSESSMENT);
                 this.formulaService.createFormula(this.generatedFormula);
+                this.literals = this.formulaService.getLiterals();
             }
             BPPLogger.log("---------------------------");
         }
 
         BPPLogger.log("Formulas generated: " + generatedFormulaCounter);
 
-        this.arffRepo.setFilePath(oldPath);
-        this.arffRepo.setData(oldData);
+        teardown(oldPath, oldData);
         return generatedFormulaCounter;
     }
 
     public boolean tryGenerateSingleFormulaFromFile(String inputFilePath, String testDataFilePath, Integer formulaNo) throws JAXBException {
         String oldPath = this.arffRepo.getFilePath();
         Instances oldData = this.arffRepo.getData();
-        this.arffRepo.setFilePath(testDataFilePath);
-        this.arffRepo.loadData(Boolean.TRUE);
+        setup(testDataFilePath);
 
         boolean generationResult = generateFormula(true, inputFilePath, formulaNo == null ? 0 : formulaNo);
         BPPLogger.log("Formula generated: " + generationResult);
 
+        teardown(oldPath, oldData);
+        return generationResult;
+    }
+
+    private void setup(String testDataFilePath) {
+        this.arffRepo.setFilePath(testDataFilePath);
+        this.arffRepo.loadData(Boolean.TRUE);
+
+        this.bankruptFormulas = this.formulaService.getFormulasByType(FormulaType.BANKRUPT);
+        this.notBankruptFormulas = this.formulaService.getFormulasByType(FormulaType.NOT_BANKRUPT);
+
+        this.literals = this.formulaService.getLiterals();
+        this.businessRules = this.formulaService.getClausesByType(ClauseType.BUSINESS);
+    }
+
+    private void teardown(String oldPath, Instances oldData) {
         this.arffRepo.setFilePath(oldPath);
         this.arffRepo.setData(oldData);
-        return generationResult;
+
+        this.bankruptFormulas = new ArrayList<>();
+        this.notBankruptFormulas = new ArrayList<>();
+
+        this.literals = new ArrayList<>();
+        this.businessRules = new ArrayList<>();
     }
 
     private boolean generateFormula(boolean readFromFile, String filePath, int formulaNo) throws JAXBException {
@@ -82,12 +109,13 @@ public class RandomFormulaGeneratorImpl implements RandomFormulaGenerator {
         int failCounter = 0;
 
         BPPLogger.log("Generating...");
-        BPPLogger.log("Iteration no.: " + failCounter);
         if (readFromFile && filePath != null) {
             readFormulaFromFile(filePath, formulaNo);
         } else {
             generateNewFormula();
         }
+
+        BPPLogger.log("Iteration no.: " + failCounter);
 
         TestingResult testingResult = testFormula(null, null, null, 0, false);
 
@@ -185,7 +213,7 @@ public class RandomFormulaGeneratorImpl implements RandomFormulaGenerator {
             this.fillRandomFormula(randomSize, r);
         }
 
-        for (Clause clause : this.formulaService.getClausesByType(ClauseType.BUSINESS)) {
+        for (Clause clause : this.businessRules) {
             this.generatedFormula.attach(clause);
         }
     }
@@ -205,7 +233,7 @@ public class RandomFormulaGeneratorImpl implements RandomFormulaGenerator {
             this.generatedFormula.getClauses().set(failingClauseIndex, getValidClause(failingClause, r));
         }
 
-        for (Clause clause : this.formulaService.getClausesByType(ClauseType.BUSINESS)) {
+        for (Clause clause : this.businessRules) {
             this.generatedFormula.attach(clause);
         }
     }
@@ -313,8 +341,8 @@ public class RandomFormulaGeneratorImpl implements RandomFormulaGenerator {
     }
 
     private Clause getRandomLiteralClause(Random r) {
-        boolean isSat = r.nextBoolean();
-        List<Formula> formulas = this.formulaService.getFormulasByType(isSat ? FormulaType.BANKRUPT : FormulaType.NOT_BANKRUPT);
+        boolean isBankrupt = r.nextBoolean();
+        List<Formula> formulas = (isBankrupt ? this.bankruptFormulas : this.notBankruptFormulas);
         Formula randomFormula = formulas.get(r.nextInt(formulas.size()));
         Clause randomClause = randomFormula.getClauses().get(r.nextInt(randomFormula.getFormulaSize()));
         Clause resultClause = new Clause();
@@ -326,20 +354,22 @@ public class RandomFormulaGeneratorImpl implements RandomFormulaGenerator {
             randomLiteral = randomClause.getLiterals().get(r.nextInt(randomClause.getLiterals().size()));
         }
 
-        fillRandomLiteralData(isSat, randomLiteral);
+        fillRandomLiteralData(isBankrupt, randomLiteral);
 
         resultClause.attach(randomLiteral);
 
         return resultClause;
     }
 
-    private void fillRandomLiteralData(boolean isSat, Literal randomLiteral) {
-        if (!isSat) {
+    private void fillRandomLiteralData(boolean isBankrupt, Literal randomLiteral) {
+        if (!isBankrupt) {
             randomLiteral.setNegative(!randomLiteral.isNegative());
         }
         randomLiteral.setExtDescription(randomLiteral.toExtString());
 
-        Literal existingLiteral = this.formulaService.getLiteralByExtDescription(randomLiteral.getExtDescription());
+        Literal existingLiteral = this.literals.stream()
+                .filter(l -> l.getExtDescription().equals(randomLiteral.getExtDescription()))
+                .findFirst().orElse(null);
         if (existingLiteral == null) {
             randomLiteral.setId(null);
         } else {
@@ -375,7 +405,7 @@ public class RandomFormulaGeneratorImpl implements RandomFormulaGenerator {
 
     private boolean validateClause(Clause randomClause) throws JAXBException {
         int successCounter = 0;
-        List<Formula> formulas = this.formulaService.getFormulasByType(FormulaType.BANKRUPT);
+        List<Formula> formulas = this.bankruptFormulas;
 
         successCounter += validateClauseWithSet(randomClause, formulas);
 
@@ -547,7 +577,9 @@ public class RandomFormulaGeneratorImpl implements RandomFormulaGenerator {
                 Clause businessRule = this.generatedFormula.getClauses().get(entry.getKey());
                 businessRule.setId(null);
                 businessRule.setClauseType(ClauseType.BUSINESS);
-                this.formulaService.createClause(businessRule);
+
+                Clause newClause = this.formulaService.createClause(businessRule);
+                this.businessRules.add(newClause);
             }
         }
 

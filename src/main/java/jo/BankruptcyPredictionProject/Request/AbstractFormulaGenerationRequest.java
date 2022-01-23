@@ -11,9 +11,6 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 public abstract class AbstractFormulaGenerationRequest {
 
-    @NotBlank(message = "inputFilePath field is required")
-    private String inputFilePath;
-
     @NotBlank(message = "testDataFilePath field is required")
     private String testDataFilePath;
 }

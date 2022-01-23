@@ -31,7 +31,7 @@ public class Literal {
     @Column(name = "LIT_IS_NEGATIVE", nullable = false)
     private boolean isNegative = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "LIT_ATS_ID")
     private AttributeScope attributeScope;
 

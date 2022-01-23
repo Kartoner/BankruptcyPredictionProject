@@ -20,6 +20,8 @@ public interface FormulaService {
 
     List<Clause> getClausesByType(ClauseType type);
 
+    List<Literal> getLiterals();
+
     Literal getLiteralByExtDescription(String extDescription);
 
     Literal createLiteral(Literal literal);

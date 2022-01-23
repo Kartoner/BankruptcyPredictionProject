@@ -13,5 +13,5 @@ public interface ClauseRepository extends JpaRepository<Clause, Long> {
     
     List<Clause> findByClauseType(ClauseType type);
 
-    Clause findByExtDescription(String extDescription);
+    List<Clause> findByExtDescription(String extDescription);
 }

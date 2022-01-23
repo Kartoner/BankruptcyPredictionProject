@@ -12,6 +12,8 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class MultipleFormulasGenerationRequest extends AbstractFormulaGenerationRequest {
 
+    private String inputFilePath;
+
     @NotNull(message = "numOfFormulas field is required")
     @Min(value = 1, message = "Number of formulas should be at least 1")
     private Integer numOfFormulas;

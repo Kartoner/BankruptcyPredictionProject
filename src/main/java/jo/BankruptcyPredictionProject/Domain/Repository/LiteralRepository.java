@@ -11,5 +11,5 @@ public interface LiteralRepository extends JpaRepository<Literal, Long> {
     
     List<Literal> findByDescription(String description);
 
-    Literal findByExtDescription(String extDescription);
+    List<Literal> findByExtDescription(String extDescription);
 }

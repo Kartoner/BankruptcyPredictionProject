@@ -128,8 +128,14 @@ public class FormulaServiceImpl implements FormulaService {
 
     @Override
     @Transactional
+    public List<Literal> getLiterals() {
+        return this.literalRepository.findAll();
+    }
+
+    @Override
+    @Transactional
     public Literal getLiteralByExtDescription(String extDescription) {
-        return this.literalRepository.findByExtDescription(extDescription);
+        return this.literalRepository.findByExtDescription(extDescription).stream().findFirst().orElse(null);
     }
 
     @Override
